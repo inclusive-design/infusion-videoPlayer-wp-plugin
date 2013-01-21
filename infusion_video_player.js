@@ -17,19 +17,29 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 var infusion_vp = infusion_vp || {};
 
 (function ($) {
+    infusion_vp.initializeVideoPlayerPlugin = function () {
+        $(".infvpc-insert").click(infusion_vp.insertVideoPlayer);
+
+        var captionTemplate = $(".infvpc-caption-template").clone();
+        $(".infvpc-add-another-caption").click(function () {
+            var copy = captionTemplate.clone().removeClass("infvpc-caption-template");
+            $(".infvpc-caption-list").append(copy);
+
+        });
+    };
     infusion_vp.insertVideoPlayer = function () {
-        var htmlString = "";
+        var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
         
-        var videoUrl = $("#video_url").val();
-        var videoFormat = $("#video_format").val();
-        var captionUrl = $("#caption_url").val();
-        var captionFormat = $("#caption_format").val();
-        var captionLang = $("#caption_lang").val();
-        var captionLangLabel = $("#caption_lang option:selected").text().trim();
-        var transcriptUrl = $("#transcript_url").val();
-        var transcriptFormat = $("#transcript_format").val();
-        var transcriptLang = $("#transcript_lang").val();
-        var transcriptLangLabel = $("#transcript_lang option:selected").text().trim();
+        var videoUrl = $("#infvpc-video_url").val();
+        var videoFormat = $("#infvpc-video_format").val();
+        var captionUrl = $("#infvpc-caption_url").val();
+        var captionFormat = $("#infvpc-caption_format").val();
+        var captionLang = $("#infvpc-caption_lang").val();
+        var captionLangLabel = $("#infvpc-caption_lang option:selected").text().trim();
+        var transcriptUrl = $("#infvpc-transcript_url").val();
+        var transcriptFormat = $("#infvpc-transcript_format").val();
+        var transcriptLang = $("#infvpc-transcript_lang").val();
+        var transcriptLangLabel = $("#infvpc-transcript_lang option:selected").text().trim();
     
         var opts = {
             video: {
@@ -49,10 +59,21 @@ var infusion_vp = infusion_vp || {};
                     srclang: transcriptLang,
                     label: transcriptLangLabel
                 }]
+            },
+            templates: {
+                videoPlayer: {
+                    href: phpVars.pluginUrl + "/lib/videoPlayer/html/videoPlayer_template.html"
+                },
+                menuButton: {
+                    href: phpVars.pluginUrl + "/lib/videoPlayer/html/menuButton_template.html"
+                }
             }
         };
-        htmlString = "<script>var opts = " + fluid.prettyPrintJSON(opts) + "</script>";
-    
+        htmlString += "var opts = " + fluid.prettyPrintJSON(opts) + ";\n";
+
+        htmlString += "fluid.videoPlayer('.infvpc-video-player', opts);";
+
+        htmlString += "</script>";
         parent.send_to_editor(htmlString);
     };
 })(jQuery);

@@ -20,13 +20,15 @@ add_action('media_upload_vp_embed_video', array('infusion_video_player', 'embed_
 class infusion_video_player {
 
 	/**
-	 * Add to the document header all files neede by the VideoPlayer
+	 * Add to the document header all files needed by the VideoPlayer
 	 */
 	function add_vp_js_to_header() {
+		// FSS-specific CSS files
 		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-layout.css', __FILE__), array(), null);
 		wp_enqueue_style( 'fss-text', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-text.css', __FILE__), array(), null);
 
 /*
+		// UIO-specific CSS files
 		wp_enqueue_style( 'fss-theme-bw-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-bw-uio.css', __FILE__), array(), null);
 		wp_enqueue_style( 'fss-theme-wb-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-wb-uio.css', __FILE__), array(), null);
 		wp_enqueue_style( 'fss-theme-by-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-by-uio.css', __FILE__), array(), null);
@@ -35,14 +37,23 @@ class infusion_video_player {
 		wp_enqueue_style( 'FatPanelUIOptions', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/FatPanelUIOptions.css', __FILE__), array(), null);
 */
 
+		// VideoPlayer-specific CSS files
+		wp_enqueue_style( 'jqueryUiCustom', plugins_url('/lib/videoPlayer/lib/jquery-ui/css/ui-lightness/jquery-ui-1.8.14.custom.css', __FILE__), array(), null);
 		wp_enqueue_style( 'VideoPlayer', plugins_url('/lib/videoPlayer/css/VideoPlayer.css', __FILE__), array(), null);
 		wp_enqueue_style( 'captions', plugins_url('/lib/videoPlayer/lib/captionator/css/captions.css', __FILE__), array(), null);
+		wp_enqueue_style( 'captions', plugins_url('/infusion_videoPlayer.css', __FILE__), array(), null);
 
+		// Infusion
 	    wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/lib/infusion/MyInfusion.js', __FILE__), array(), null);
 
+		// VideoPlayer-specific JS files
+	    wp_enqueue_script('jqueryUiButton', plugins_url('/lib/videoPlayer/lib/jquery-ui/js/jquery.ui.button.js', __FILE__), array(), null);
+	    wp_enqueue_script('captionator', plugins_url('/lib/videoPlayer/lib/captionator/js/captionator.js', __FILE__), array(), null);
+	    wp_enqueue_script('mediaelement', plugins_url('/lib/videoPlayer/lib/mediaelement/js/mediaelement.js', __FILE__), array(), null);
+
+	    wp_enqueue_script('VideoPlayer_framework', plugins_url('/lib/videoPlayer/js/VideoPlayer_framework.js', __FILE__), array(), null);
 	    wp_enqueue_script('ToggleButton', plugins_url('/lib/videoPlayer/js/ToggleButton.js', __FILE__), array(), null);
 	    wp_enqueue_script('MenuButton', plugins_url('/lib/videoPlayer/js/MenuButton.js', __FILE__), array(), null);
-	    wp_enqueue_script('VideoPlayer_framework', plugins_url('/lib/videoPlayer/js/VideoPlayer_framework.js', __FILE__), array(), null);
 	    wp_enqueue_script('VideoPlayer_html5Captionator', plugins_url('/lib/videoPlayer/js/VideoPlayer_html5Captionator.js', __FILE__), array(), null);
 	    wp_enqueue_script('VideoPlayer_media', plugins_url('/lib/videoPlayer/js/VideoPlayer_media.js', __FILE__), array(), null);
 	    wp_enqueue_script('VideoPlayer_transcript', plugins_url('/lib/videoPlayer/js/VideoPlayer_transcript.js', __FILE__), array(), null);
@@ -57,6 +68,10 @@ class infusion_video_player {
 	 */
 	function add_plugin_js_to_header() { //loads plugin-related javascripts
 	    wp_enqueue_script( 'infusion_video_player_script', plugins_url('/infusion_video_player.js', __FILE__) );
+
+		// make some PHP data available to the JS script
+		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
+		wp_localize_script( 'infusion_video_player_script', 'phpVars', $php_vars );
 	}
 
 	/**
@@ -73,57 +88,7 @@ class infusion_video_player {
 	// need to have 'media_' as prefix, for styling purposes
 	function media_upload_vp_embed_video_form () {
 		media_upload_header();
-		?>
-<form class="media-upload-form type-form validate" id="video-form" enctype="multipart/form-data" method="post" action="">
-	<div>
-		<label for="video_url">Video URL:</label>
-		<input type='text' id='video_url' />
-		<label for="video_format">Format:</label>
-		<select id="video_format">
-			<option value="video/mp4">video/mp4</option>
-			<option value="video/webm">video/webm</option>
-			<option value="video/ogg">video/ogg</option>
-			<option value="video/ogv">video/ogv</option>
-			<option value="video/youtube">video/youtube</option>
-		</select>
-	</div>
-
-	<div>
-		<label for="caption_url">Caption URL:</label>
-		<input type='text' id='video_url' />
-		<label for="caption_format">Format:</label>
-		<select id="caption_format">
-			<option value="text/vtt">text/vtt</option>
-			<option value="text/amarajson">text/amarajson</option>
-		</select>
-		<label for="caption_lang">Language:</label>
-		<select id="caption_lang">
-			<option value="en">English</option>
-			<option value="fr">French</option>
-		</select>
-	</div>
-
-	<div>
-		<label for="transcript_url">Transcript URL:</label>
-		<input type='text' id='video_url' />
-		<label for="transcript_format">Format:</label>
-		<select id="transcript_format">
-			<option value="text/vtt">text/vtt</option>
-			<option value="text/amarajson">text/amarajson</option>
-		</select>
-		<label for="transcript_lang">Language:</label>
-		<select id="transcript_lang">
-			<option value="en">English</option>
-			<option value="fr">French</option>
-		</select>
-	</div>
-
-	<div>
-		<input type="button" onclick="infusion_vp.insertVideoPlayer();" name="insertonlybutton" id="insertonlybutton" class="button" value="Insert into Post"  />
-	</div>
-
-</form> 
-		<?php
+		include_once('videoEmbedForm.php');
 	}
 
 	/**
