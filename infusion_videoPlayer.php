@@ -67,7 +67,7 @@ class infusion_video_player {
 	 * Add to the document header files needed by the plugin
 	 */
 	function add_plugin_js_to_header() { //loads plugin-related javascripts
-	    wp_enqueue_script( 'infusion_video_player_script', plugins_url('/infusion_video_player.js', __FILE__) );
+	    wp_enqueue_script( 'infusion_video_player_script', plugins_url('/infusion_videoPlayer.js', __FILE__) );
 
 		// make some PHP data available to the JS script
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
