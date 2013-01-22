@@ -1,61 +1,84 @@
+<div class="embed-video-player-form">
     <div>
-        <label for="infvpc-video_title">Video Title:</label>
-        <input type='text' id='infvpc-video_title' />
+        <label for="infvpc-videoTitle">Video Title:</label>
+        <input type='text' id='infvpc-videoTitle' />
     </div>
     <div>
-        <label for="infvpc-video_url">Video URL:</label>
-        <input type='text' id='infvpc-video_url' />
-        <labelfor="infvpc-video_format">Format:</label>
-        <select id="infvpc-video_format">
-            <option value="video/webm">video/webm</option>
-            <option value="video/mp4">video/mp4</option>
-            <option value="video/ogg">video/ogg</option>
-            <option value="video/ogv">video/ogv</option>
-            <option value="video/youtube">video/youtube</option>
+        <label for="infvpc-videoUrl">Video URL:</label>
+        <input type='text' id='infvpc-videoUrl' />
+        <label for="infvpc-videoFormat">Format:</label>
+        <select id="infvpc-videoFormat">
+            <option value="">options not loaded yet</option>
         </select>
     </div>
 
     <h2>Captions</h2>
-    <div class="infvpc-caption-list">
-        <div class="infvpc-caption-template">
+    <label>
+	    <input type="radio" class="infvpc-captionFormatChooser" name="captionType" id="amaraCaption" checked="checked">Amara
+	</label>
+    <label>
+	    <input type="radio" class="infvpc-captionFormatChooser" name="captionType" id="vttCaption">VTT
+	</label>
+
+	<div class="infvpc-captionFormatForm infvp-captionFormatForm infvp-captionFormAmara">
+		<div class="infvp-captionFormAmara">
+            <label  for="infvpc-captionUrl">Caption URL:</label>
+            <input type='text' id='infvpc-captionUrl' />
+            <label for="infvpc-captionLang">Language:</label>
+            <select id="infvpc-captionLang">
+				<option value="">options not loaded yet</option>
+            </select>
+		</div>
+		<div class="infvp-captionFormVtt">
+            <label  for="infvpc-captionName">Caption File Name:</label>
+            <input type='text' id='infvpc-captionName' />
+            <label for="infvpc-captionFormat">Format:</label>
+	        <select id="infvpc-captionFormat">
+	            <option value="">options not loaded yet</option>
+	        </select>
+		</div>
+	</div>
+
+    <div class="infvpc-captionList">
+        <div class="infvpc-captionTemplate">
             <button class="infvpc-delete-caption">del</button>
-            <label class="vp-label"  for="infvpc-caption_url">Caption URL:</label>
-            <input type='text' id='infvpc-caption_url' />
-            <label for="caption_lang">Language:</label>
-            <select id="infvpc-caption_lang">
-                <option value="en">English</option>
-                <option value="fr">French</option>
-            </select>
-            <label for="infvpc-caption_format">Format:</label>
-            <select id="infvpc-caption_format">
-                <option value="text/vtt">text/vtt</option>
-                <option value="text/amarajson">text/amarajson</option>
-            </select>
         </div>
     </div>
-    <button class="infvpc-add-another-caption">Add another caption</button>
+    <button class="infvpc-addAnotherCaption">Add another caption</button>
 
     <h2>Transcripts</h2>
-    <div class="infvpc-transcript-list">
-        <div class="infvpc-transcript-template">
-            <label for="infvpc-transcript_url">Transcript URL:</label>
-            <input type='text' id='infvpc-transcript_url' />
-            <label for="infvpc-transcript_lang">Language:</label>
-            <select id="infvpc-transcript_lang">
-                <option value="en">English</option>
-                <option value="fr">French</option>
+    <label>
+	    <input type="radio" class="infvpc-transcriptFormatChooser" name="transcriptType" id="amaraTranscript" checked="checked">Amara
+	</label>
+    <label>
+	    <input type="radio" class="infvpc-transcriptFormatChooser" name="transcriptType" id="jsonTranscript">JSONcc
+	</label>
+
+	<div class="infvpc-transcriptFormatForm infvp-transcriptFormatForm infvp-transcriptFormAmara">
+		<div class="infvp-transcriptFormAmara">
+            <label  for="infvpc-transcriptUrl">Transcript URL:</label>
+            <input type='text' id='infvpc-transcriptUrl' />
+            <label for="infvpc-transcriptLang">Language:</label>
+            <select id="infvpc-transcriptLang">
+				<option value="">options not loaded yet</option>
             </select>
-            <label for="infvpc-transcript_format">Format:</label>
-            <select id="infvpc-transcript_format">
-                <option value="text/vtt">text/vtt</option>
-                <option value="text/amarajson">text/amarajson</option>
-            </select>
-        </div>
-    </div>
-    <button class="infvpc-add-another-transcript">Add another transcript</button>
+		</div>
+		<div class="infvp-transcriptFormJson">
+            <label  for="infvpc-transcriptName">Transcript File Name:</label>
+            <input type='text' id='infvpc-transcriptName' />
+            <label for="infvpc-transcriptFormat">Format:</label>
+	        <select id="infvpc-transcriptFormat">
+	            <option value="">options not loaded yet</option>
+	        </select>
+		</div>
+	</div>
+
+    <button class="infvpc-addAnotherTranscript">Add another transcript</button>
+
 
     <div>
         <input class="infvpc-insert" type="button" name="insertonlybutton" id="insertonlybutton" class="button" value="Insert into Post"  />
     </div>
+</div>
 
-    <script>infusion_vp.initializeVideoPlayerPlugin();</script>
+<script>infusion_vp.videoPlayerPlugin(".embed-video-player-form");</script>

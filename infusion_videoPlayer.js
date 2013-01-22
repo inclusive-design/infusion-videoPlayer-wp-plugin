@@ -17,46 +17,145 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 var infusion_vp = infusion_vp || {};
 
 (function ($) {
-    infusion_vp.initializeVideoPlayerPlugin = function () {
-        $(".infvpc-insert").click(infusion_vp.insertVideoPlayer);
 
-        var captionTemplate = $(".infvpc-caption-template").clone();
-        $(".infvpc-add-another-caption").click(function () {
-            var copy = captionTemplate.clone().removeClass("infvpc-caption-template");
-            $(".infvpc-caption-list").append(copy);
+    fluid.defaults("infusion_vp.videoPlayerPlugin", {
+        gradeNames: ["fluid.rendererComponent", "autoInit"],
+        renderOnInit: true,
+        rendererOptions: {
+            autoBind: true,
+debugMode: true
+        },
+        finalInitFunction: "infusion_vp.videoPlayerPlugin.finalInit",
+        model: {
+            videoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
+            videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
+            captionFormats: ["text/amarajson", "text/vtt"],
+            captionFormatNames: ["Amara", "VTT"],
+            transcriptFormats: ["text/amarajson", "text/JSONcc"],
+            transcriptFormatNames: ["Amara", "JSONcc"],
+            languageCodes: ["en", "fr", "es"],
+            languageNames: ["English", "French", "Spanish"]
+        },
+        selectors: {
+            // selectors for the form
+            videoUrl: "#infvpc-videoUrl",
+            videoTitle: "#infvpc-videoTitle",
+            videoFormat: "#infvpc-videoFormat",
+            captionUrl: "#infvpc-captionUrl",
+            captionName: "#infvpc-captionName",
+            captionFormat: "#infvpc-captionFormat",
+            captionLang: "#infvpc-captionLang",
+            transcriptUrl: "#infvpc-transcriptUrl",
+            transcriptName: "#infvpc-transcriptName",
+            transcriptFormat: "#infvpc-transcriptFormat",
+            transcriptLang: "#infvpc-transcriptLang",
+            transcriptList: ".infvpc-transcriptList",
 
-        });
+            // other selectors
+            captionList: ".infvpc-captionList",
+            addAnotherCaption: ".infvpc-addAnotherCaption",
+            captionTemplate: ".infvpc-captionTemplate",
+            captionFormatChooser: ".infvpc-captionFormatChooser",
+            captionFormatForm: ".infvpc-captionFormatForm",
+            captionFormAmara: ".infvpc-captionFormAmara",
+            captionFormVtt: ".infvpc-captionFormVtt",
+            transcriptFormatChooser: ".infvpc-transcriptFormatChooser",
+            transcriptFormatForm: ".infvpc-transcriptFormatForm",
+            transcriptFormAmara: ".infvpc-transcriptFormAmara",
+            transcriptFormVtt: ".infvpc-transcriptFormVtt",
+            addAnotherTranscript: ".infvpc-addAnotherTranscript",
+            insertIntoPost: ".infvpc-insert"
+        },
+        repeatingSelectors: [],
+        selectorsToIgnore: ["addAnotherTranscript", "captionList", "captionFormatChooser", "transcriptFormatChooser", "captionTemplate", "captionFormatForm", "transcriptFormatForm", "transcriptList", "transcriptTemplate", "insertIntoPost"],
+        produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
+        styles: {
+            captionFormAmara: "infvp-captionFormAmara",
+            captionFormVtt: "infvp-captionFormVtt",
+            transcriptFormAmara: "infvp-transcriptFormAmara",
+            transcriptFormJson: "infvp-transcriptFormJson"
+        }
+    });
+
+    infusion_vp.videoPlayerPlugin.produceTree = function (that) {
+        var tree = {
+            videoTitle: "${videoTitle}",
+            videoUrl: "${videoUrl}",
+            videoFormat: {
+                selection: "${videoFormat}",
+                optionlist: "${videoFormats}",
+                optionnames: "${videoFormatNames}"
+            },
+            captionUrl: "${captionUrl}",
+            captionLang: {
+                selection: "${captionLang}",
+                optionlist: "${languageCodes}",
+                optionnames: "${languageNames}"
+            },
+            captionName: "${captionName}",
+            captionFormat: {
+                selection: "${captionFormat}",
+                optionlist: "${captionFormats}",
+                optionnames: "${captionFormatNames}"
+            },
+            transcriptUrl: "${transcriptUrl}",
+            transcriptLang: {
+                selection: "${transcriptLang}",
+                optionlist: "${languageCodes}",
+                optionnames: "${languageNames}"
+            },
+            transcriptFormat: {
+                selection: "${transcriptFormat}",
+                optionlist: "${transcriptFormats}",
+                optionnames: "${transcriptFormatNames}"
+            }
+        };
+        return tree;
     };
-    infusion_vp.insertVideoPlayer = function () {
+
+    infusion_vp.videoPlayerPlugin.finalInit = function (that) {
+        that.locate("insertIntoPost").click(function () {
+            infusion_vp.videoPlayerPlugin.insertVideoPlayer(that);
+        });
+
+        that.captionTemplate = that.locate("captionTemplate").clone();
+        that.locate("addAnotherCaption").click(function () {
+            var copy = that.captionTemplate.clone().removeClass("infvpc-captionTemplate"); // *********
+            that.locate("captionList").append(copy);
+        });
+
+        // TODO: These toggles won't toggle if the same radio button is pressed twice
+        that.locate("captionFormatChooser").click(function () {
+            that.locate("captionFormatForm").toggleClass(that.options.styles.captionFormAmara).toggleClass(that.options.styles.captionFormVtt);
+        });
+        that.locate("transcriptFormatChooser").click(function () {
+            that.locate("transcriptFormatForm").toggleClass(that.options.styles.transcriptFormAmara).toggleClass(that.options.styles.transcriptFormJson)
+        });
+
+    };
+
+    infusion_vp.videoPlayerPlugin.insertVideoPlayer = function (that) {
         var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
         
-        var videoUrl = $("#infvpc-video_url").val();
-        var videoFormat = $("#infvpc-video_format").val();
-        var captionUrl = $("#infvpc-caption_url").val();
-        var captionFormat = $("#infvpc-caption_format").val();
-        var captionLang = $("#infvpc-caption_lang").val();
-        var captionLangLabel = $("#infvpc-caption_lang option:selected").text().trim();
-        var transcriptUrl = $("#infvpc-transcript_url").val();
-        var transcriptFormat = $("#infvpc-transcript_format").val();
-        var transcriptLang = $("#infvpc-transcript_lang").val();
-        var transcriptLangLabel = $("#infvpc-transcript_lang option:selected").text().trim();
+        var captionLangLabel = $("#infvpc-captionLang option:selected").text().trim();
+        var transcriptLangLabel = $("#infvpc-transcriptLang option:selected").text().trim();
     
         var opts = {
             video: {
                 sources: [{
-                    src: videoUrl,
-                    type: videoFormat
+                    src: that.model.videoUrl,
+                    type: that.model.videoFormat
                 }],
                 captions: [{
-                    src: captionUrl,
-                    type: captionFormat,
-                    srclang: captionLang,
+                    src: that.model.captionUrl,
+                    type: that.model.captionFormat.selection,
+                    srclang: that.model.captionLang.selection,
                     label: captionLangLabel
                 }],
                 transcripts: [{
-                    src: transcriptUrl,
-                    type: transcriptFormat,
-                    srclang: transcriptLang,
+                    src: that.model.transcriptUrl,
+                    type: that.model.transcriptFormat.selection,
+                    srclang: that.model.transcriptLang.selection,
                     label: transcriptLangLabel
                 }]
             },

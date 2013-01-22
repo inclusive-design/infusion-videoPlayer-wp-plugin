@@ -1,0 +1,11 @@
+.fl-videoPlayer-video-element,
+.fl-videoPlayer-overlay {
+    width: inherit;
+}
+
+.infvp-captionFormatForm.infvp-captionFormAmara .infvp-captionFormVtt,
+.infvp-captionFormatForm.infvp-captionFormVtt .infvp-captionFormAmara,
+.infvp-transcriptFormatForm.infvp-transcriptFormAmara .infvp-transcriptFormJson,
+.infvp-transcriptFormatForm.infvp-transcriptFormJson .infvp-transcriptFormAmara {
+    display: none;
+}
