@@ -22,7 +22,9 @@ add_filter('upload_mimes', array('infusion_video_player', 'custom_upload_mimes')
 class infusion_video_player {
 
 	public static $supported_caption_types = array(
-	    'vtt'  => 'text/vtt',
+	    'vtt'  => 'text/vtt'
+	);
+	public static $supported_transcript_types = array(
 	    'json' => 'application/json'
 	);
 
@@ -31,6 +33,9 @@ class infusion_video_player {
 	 */
 	function custom_upload_mimes ( $existing_mimes=array() ) {
 		foreach (infusion_video_player::$supported_caption_types as $i => $value) {
+			$existing_mimes[$i] = $value;
+		}
+		foreach (infusion_video_player::$supported_transcript_types as $i => $value) {
 			$existing_mimes[$i] = $value;
 		}
 		return $existing_mimes;
@@ -89,6 +94,7 @@ class infusion_video_player {
 		// make some PHP data available to the JS script
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
 		$php_vars['captionList'] = infusion_video_player::get_caption_files();
+		$php_vars['transcriptList'] = infusion_video_player::get_transcript_files();
 		wp_localize_script( 'infusion_video_player_script', 'phpVars', $php_vars );
 	}
 
@@ -107,8 +113,6 @@ class infusion_video_player {
 	function media_upload_vp_embed_video_form () {
 		media_upload_header();
 		include_once('videoEmbedForm.php');
-
-infusion_video_player::get_caption_files();
 	}
 
 	/**
@@ -119,7 +123,7 @@ infusion_video_player::get_caption_files();
 	}
 
 	/**
-	 * Retrieve list of currently available caption and transcript files from the gallery
+	 * Retrieve list of currently available caption files from the gallery
 	 */
 	function get_caption_files () {
 		$attached_captions = array();
@@ -134,8 +138,26 @@ infusion_video_player::get_caption_files();
 				}
 			}
 		}
-
 		return $attached_captions;
+	}
+
+	/**
+	 * Retrieve list of currently available transcript files from the gallery
+	 */
+	function get_transcript_files () {
+		$attached_transcripts = array();
+
+		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
+		$attachments = get_posts( $args );
+		if ($attachments) {
+			$index = 0;
+			foreach ( $attachments as $post ) {
+				if (in_array($post->post_mime_type, infusion_video_player::$supported_transcript_types)) {
+					$attached_transcripts[$index++] = $post->post_title;
+				}
+			}
+		}
+		return $attached_transcripts;
 	}
 }
 ?>

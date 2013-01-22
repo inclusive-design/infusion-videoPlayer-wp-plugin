@@ -31,7 +31,9 @@
 		</div>
 		<div class="infvp-captionFormVtt">
             <label  for="infvpc-captionName">Caption File Name:</label>
-            <input type='text' id='infvpc-captionName' />
+            <select id="infvpc-captionName">
+				<option value="">options not loaded yet</option>
+            </select>
             <label for="infvpc-captionFormat">Format:</label>
 	        <select id="infvpc-captionFormat">
 	            <option value="">options not loaded yet</option>
@@ -65,7 +67,9 @@
 		</div>
 		<div class="infvp-transcriptFormJson">
             <label  for="infvpc-transcriptName">Transcript File Name:</label>
-            <input type='text' id='infvpc-transcriptName' />
+            <select id="infvpc-transcriptName">
+				<option value="">options not loaded yet</option>
+            </select>
             <label for="infvpc-transcriptFormat">Format:</label>
 	        <select id="infvpc-transcriptFormat">
 	            <option value="">options not loaded yet</option>

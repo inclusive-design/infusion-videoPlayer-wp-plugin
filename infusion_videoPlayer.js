@@ -25,6 +25,7 @@ var infusion_vp = infusion_vp || {};
             autoBind: true,
 debugMode: true
         },
+        preInitFunction: "infusion_vp.videoPlayerPlugin.preInit",
         finalInitFunction: "infusion_vp.videoPlayerPlugin.finalInit",
         model: {
             videoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
@@ -92,7 +93,11 @@ debugMode: true
                 optionlist: "${languageCodes}",
                 optionnames: "${languageNames}"
             },
-            captionName: "${captionName}",
+            captionName: {
+                selection: "${captionName}",
+                optionlist: "${attachedCaptionFiles}",
+                optionnames: "${attachedCaptionFiles}"
+            },
             captionFormat: {
                 selection: "${captionFormat}",
                 optionlist: "${captionFormats}",
@@ -104,6 +109,11 @@ debugMode: true
                 optionlist: "${languageCodes}",
                 optionnames: "${languageNames}"
             },
+            transcriptName: {
+                selection: "${transcriptName}",
+                optionlist: "${attachedTranscriptFiles}",
+                optionnames: "${attachedTranscriptFiles}"
+            },
             transcriptFormat: {
                 selection: "${transcriptFormat}",
                 optionlist: "${transcriptFormats}",
@@ -111,6 +121,12 @@ debugMode: true
             }
         };
         return tree;
+    };
+
+    infusion_vp.videoPlayerPlugin.preInit = function (that) {
+        // these are currently arrays of string file names
+        that.model.attachedCaptionFiles = phpVars.captionList;
+        that.model.attachedTranscriptFiles = phpVars.transcriptList;
     };
 
     infusion_vp.videoPlayerPlugin.finalInit = function (that) {
