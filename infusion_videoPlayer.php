@@ -13,11 +13,12 @@ add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_vp_js_to_he
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_vp_js_to_header'));
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_plugin_js_to_header'));
 
-add_filter('media_upload_tabs', array('infusion_video_player', 'add_embed_tab'));
+add_filter('media_upload_tabs', 'infusion_video_player::add_embed_tab');
 add_action('media_upload_vp_embed_video', array('infusion_video_player', 'embed_media_handler'));
 
 
 add_filter('upload_mimes', array('infusion_video_player', 'custom_upload_mimes'));
+add_filter('the_content', array('infusion_video_player', 'restore_ampersands'));
 
 class infusion_video_player {
 
@@ -158,6 +159,11 @@ class infusion_video_player {
 			}
 		}
 		return $attached_transcripts;
+	}
+
+	function restore_ampersands($content)
+	{
+	    return preg_replace('/\\&#038;/', '/\\&', $content);
 	}
 }
 ?>

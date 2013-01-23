@@ -32,6 +32,8 @@ debugMode: true
             videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
             languageCodes: ["en", "fr", "es"],
             languageNames: ["English", "French", "Spanish"],
+            captionLang: "en",
+            transcriptLang: "en",
             captionFormats: ["text/amarajson", "text/vtt"],
             captionFormatNames: ["Amara", "VTT"],
             captionFormat: "text/amarajson",
@@ -46,10 +48,10 @@ debugMode: true
             videoFormat: "#infvpc-videoFormat",
             captionUrl: "#infvpc-captionUrl",
             captionName: "#infvpc-captionName",
-            captionLang: "#infvpc-captionLang",
+            "infvpc-captionLang": "#infvpc-captionLang",
             transcriptUrl: "#infvpc-transcriptUrl",
             transcriptName: "#infvpc-transcriptName",
-            transcriptLang: "#infvpc-transcriptLang",
+            "infvpc-transcriptLang": "#infvpc-transcriptLang",
             transcriptList: ".infvpc-transcriptList",
 
             // TODO: Need to remove all the duplication around captions vs transcripts
@@ -130,7 +132,7 @@ debugMode: true
                 }
             }],
             captionUrl: "${captionUrl}",
-            captionLang: {
+            "infvpc-captionLang": {
                 selection: "${captionLang}",
                 optionlist: "${languageCodes}",
                 optionnames: "${languageNames}"
@@ -141,7 +143,7 @@ debugMode: true
                 optionnames: "${attachedCaptionFiles}"
             },
             transcriptUrl: "${transcriptUrl}",
-            transcriptLang: {
+            "infvpc-transcriptLang": {
                 selection: "${transcriptLang}",
                 optionlist: "${languageCodes}",
                 optionnames: "${languageNames}"
@@ -187,10 +189,11 @@ debugMode: true
     infusion_vp.videoPlayerPlugin.insertVideoPlayer = function (that) {
         var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
         
-        var captionLangLabel = $("#infvpc-captionLang option:selected").text().trim();
-        var transcriptLangLabel = $("#infvpc-transcriptLang option:selected").text().trim();
+        var captionLangLabel = $("option:selected", that.locate("infvpc-captionLang")).text().trim();
+        var transcriptLangLabel = $("option:selected", that.locate("infvpc-transcriptLang")).text().trim();
     
         var opts = {
+            videoTitle: that.model.videoTitle,
             video: {
                 sources: [{
                     src: that.model.videoUrl,
@@ -198,14 +201,14 @@ debugMode: true
                 }],
                 captions: [{
                     src: that.model.captionUrl,
-                    type: that.model.captionFormat.selection,
-                    srclang: that.model.captionLang.selection,
+                    type: that.model.captionFormat,
+                    srclang: that.model.captionLang,
                     label: captionLangLabel
                 }],
                 transcripts: [{
                     src: that.model.transcriptUrl,
-                    type: that.model.transcriptFormat.selection,
-                    srclang: that.model.transcriptLang.selection,
+                    type: that.model.transcriptFormat,
+                    srclang: that.model.transcriptLang,
                     label: transcriptLangLabel
                 }]
             },
