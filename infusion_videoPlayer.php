@@ -20,7 +20,14 @@ add_action('media_upload_vp_embed_video', array('infusion_video_player', 'embed_
 add_filter('upload_mimes', array('infusion_video_player', 'custom_upload_mimes'));
 add_filter('the_content', array('infusion_video_player', 'restore_ampersands'));
 
+infusion_video_player::get_caption_transcript_files();
+
 class infusion_video_player {
+
+	public static $caption_file_names = array();
+	public static $caption_file_urls = array();
+	public static $transcript_file_names = array();
+	public static $transcript_file_urls = array();
 
 	public static $supported_caption_types = array(
 	    'vtt'  => 'text/vtt'
@@ -94,8 +101,12 @@ class infusion_video_player {
 
 		// make some PHP data available to the JS script
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
-		$php_vars['captionList'] = infusion_video_player::get_caption_files();
-		$php_vars['transcriptList'] = infusion_video_player::get_transcript_files();
+		$uploadDir = wp_upload_dir();
+		$php_vars['uploadsUrl'] = $uploadDir['url'];
+		$php_vars['captionFileNames'] = infusion_video_player::$caption_file_names;
+		$php_vars['captionFileUrls'] = infusion_video_player::$caption_file_urls;
+		$php_vars['transcriptFileNames'] = infusion_video_player::$transcript_file_names;
+		$php_vars['transcriptFileUrls'] = infusion_video_player::$transcript_file_urls;
 		wp_localize_script( 'infusion_video_player_script', 'phpVars', $php_vars );
 	}
 
@@ -126,39 +137,34 @@ class infusion_video_player {
 	/**
 	 * Retrieve list of currently available caption files from the gallery
 	 */
-	function get_caption_files () {
-		$attached_captions = array();
-
+	function get_caption_transcript_files() {
+		// get files of types supported by captions
 		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
 		$attachments = get_posts( $args );
 		if ($attachments) {
 			$index = 0;
 			foreach ( $attachments as $post ) {
 				if (in_array($post->post_mime_type, infusion_video_player::$supported_caption_types)) {
-					$attached_captions[$index++] = $post->post_title;
+					infusion_video_player::$caption_file_names[$index] = $post->post_title;
+					infusion_video_player::$caption_file_urls[$index] = $post->guid;
+					$index++;
 				}
 			}
 		}
-		return $attached_captions;
-	}
 
-	/**
-	 * Retrieve list of currently available transcript files from the gallery
-	 */
-	function get_transcript_files () {
-		$attached_transcripts = array();
-
+		// get files of types supported by transcript
 		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
 		$attachments = get_posts( $args );
 		if ($attachments) {
 			$index = 0;
 			foreach ( $attachments as $post ) {
 				if (in_array($post->post_mime_type, infusion_video_player::$supported_transcript_types)) {
-					$attached_transcripts[$index++] = $post->post_title;
+					infusion_video_player::$transcript_file_names[$index] = $post->post_title;
+					infusion_video_player::$transcript_file_urls[$index] = $post->guid;
+					$index++;
 				}
 			}
 		}
-		return $attached_transcripts;
 	}
 
 	function restore_ampersands($content)

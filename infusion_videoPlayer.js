@@ -37,7 +37,7 @@ debugMode: true
             captionFormats: ["text/amarajson", "text/vtt"],
             captionFormatNames: ["Amara", "VTT"],
             captionFormat: "text/amarajson",
-            transcriptFormats: ["text/amarajson", "text/jsoncc"],
+            transcriptFormats: ["text/amarajson", "JSONcc"],
             transcriptFormatNames: ["Amara", "JSONcc"],
             transcriptFormat: "text/amarajson"
         },
@@ -87,7 +87,7 @@ debugMode: true
             },
             transcriptForm: {
                 "text/amarajson":  "infvp-transcriptFormAmara",
-                "text/jsoncc":  "infvp-transcriptFormJson"
+                "JSONcc":  "infvp-transcriptFormJson"
             }
         },
         listeners: {
@@ -139,8 +139,8 @@ debugMode: true
             },
             captionName: {
                 selection: "${captionName}",
-                optionlist: "${attachedCaptionFiles}",
-                optionnames: "${attachedCaptionFiles}"
+                optionlist: "${captionFileUrls}",
+                optionnames: "${captionFileNames}"
             },
             transcriptUrl: "${transcriptUrl}",
             "infvpc-transcriptLang": {
@@ -150,8 +150,8 @@ debugMode: true
             },
             transcriptName: {
                 selection: "${transcriptName}",
-                optionlist: "${attachedTranscriptFiles}",
-                optionnames: "${attachedTranscriptFiles}"
+                optionlist: "${transcriptFileUrls}",
+                optionnames: "${transcriptFileNames}"
             }
         };
         return tree;
@@ -178,8 +178,12 @@ debugMode: true
 
     infusion_vp.videoPlayerPlugin.preInit = function (that) {
         // these are currently arrays of string file names
-        that.model.attachedCaptionFiles = phpVars.captionList;
-        that.model.attachedTranscriptFiles = phpVars.transcriptList;
+        that.model.captionFileNames = phpVars.captionFileNames;
+        that.model.captionFileUrls = phpVars.captionFileUrls;
+        that.model.captionName = that.model.captionFileUrls[0];
+        that.model.transcriptFileNames = phpVars.transcriptFileNames;
+        that.model.transcriptFileUrls = phpVars.transcriptFileUrls;
+        that.model.transcriptName = that.model.transcriptFileUrls[0];
     };
 
     infusion_vp.videoPlayerPlugin.finalInit = function (that) {
@@ -221,6 +225,13 @@ debugMode: true
                 }
             }
         };
+        if (that.model.captionFormat === "text/vtt") {
+            opts.video.captions[0].src = that.model.captionName;
+        }
+        if (that.model.transcriptFormat === "JSONcc") {
+            opts.video.transcripts[0].src = that.model.transcriptName;
+        }
+
         htmlString += "var opts = " + fluid.prettyPrintJSON(opts) + ";\n";
 
         htmlString += "fluid.videoPlayer('.infvpc-video-player', opts);";
