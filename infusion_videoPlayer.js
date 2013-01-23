@@ -180,9 +180,20 @@ debugMode: true
         // these are currently arrays of string file names
         that.model.captionFileNames = phpVars.captionFileNames;
         that.model.captionFileUrls = phpVars.captionFileUrls;
-        that.model.captionName = that.model.captionFileUrls[0];
         that.model.transcriptFileNames = phpVars.transcriptFileNames;
         that.model.transcriptFileUrls = phpVars.transcriptFileUrls;
+
+        // TODO: This is a hack: need a better solution
+        if (that.model.captionFileNames.length === 0) {
+            that.model.captionFileNames = ["No caption files uploaded yet"];
+            that.model.captionFileUrls = ["nothing here yet"];
+        }
+        if (that.model.transcriptFileNames.length === 0) {
+            that.model.transcriptFileNames = ["No transcript files uploaded yet"];
+            that.model.transcriptFileUrls = ["nothing here yet"];
+        }
+
+        that.model.captionName = that.model.captionFileUrls[0];
         that.model.transcriptName = that.model.transcriptFileUrls[0];
     };
 
