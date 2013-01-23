@@ -30,12 +30,19 @@ debugMode: true
         model: {
             videoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
             videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
-            captionFormats: ["text/amarajson", "text/vtt"],
-            captionFormatNames: ["Amara", "VTT"],
-            transcriptFormats: ["text/amarajson", "text/JSONcc"],
-            transcriptFormatNames: ["Amara", "JSONcc"],
             languageCodes: ["en", "fr", "es"],
-            languageNames: ["English", "French", "Spanish"]
+            languageNames: ["English", "French", "Spanish"],
+
+            captionFormats: {
+                choices: ["text/amarajson", "text/vtt"],
+                names: ["Amara", "VTT"],
+                selection: "text/amarajson"
+            },
+            transcriptFormats: {
+                choices: ["text/amarajson", "text/jsoncc"],
+                names: ["Amara", "JSONcc"],
+                selection: "text/amarajson"
+            }
         },
         selectors: {
             // selectors for the form
@@ -44,37 +51,48 @@ debugMode: true
             videoFormat: "#infvpc-videoFormat",
             captionUrl: "#infvpc-captionUrl",
             captionName: "#infvpc-captionName",
-            captionFormat: "#infvpc-captionFormat",
             captionLang: "#infvpc-captionLang",
             transcriptUrl: "#infvpc-transcriptUrl",
             transcriptName: "#infvpc-transcriptName",
-            transcriptFormat: "#infvpc-transcriptFormat",
             transcriptLang: "#infvpc-transcriptLang",
             transcriptList: ".infvpc-transcriptList",
+
+            captionFormatChooserRow: ".infvpc-captionFormatChooserRow",
+            captionFormatChooserButton: ".infvpc-captionFormatChooser",
+            captionFormatChooserLabel: ".infvpc-captionFormatChooserLabel",
+            transcriptFormatChooserRow: ".infvpc-transcriptFormatChooserRow",
+            transcriptFormatChooserButton: ".infvpc-transcriptFormatChooser",
+            transcriptFormatChooserLabel: ".infvpc-transcriptFormatChooserLabel",
 
             // other selectors
             captionList: ".infvpc-captionList",
             addAnotherCaption: ".infvpc-addAnotherCaption",
             captionTemplate: ".infvpc-captionTemplate",
-            captionFormatChooser: ".infvpc-captionFormatChooser",
             captionFormatForm: ".infvpc-captionFormatForm",
             captionFormAmara: ".infvpc-captionFormAmara",
             captionFormVtt: ".infvpc-captionFormVtt",
-            transcriptFormatChooser: ".infvpc-transcriptFormatChooser",
             transcriptFormatForm: ".infvpc-transcriptFormatForm",
             transcriptFormAmara: ".infvpc-transcriptFormAmara",
             transcriptFormVtt: ".infvpc-transcriptFormVtt",
             addAnotherTranscript: ".infvpc-addAnotherTranscript",
             insertIntoPost: ".infvpc-insert"
         },
-        repeatingSelectors: [],
-        selectorsToIgnore: ["addAnotherTranscript", "captionList", "captionFormatChooser", "transcriptFormatChooser", "captionTemplate", "captionFormatForm", "transcriptFormatForm", "transcriptList", "transcriptTemplate", "insertIntoPost"],
+        repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow"],
+        selectorsToIgnore: ["captionList", "captionTemplate", "captionFormatForm",
+                            "transcriptList", "transcriptTemplate", "transcriptFormatForm",
+                            "addAnotherTranscript", "insertIntoPost"],
         produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
         styles: {
             captionFormAmara: "infvp-captionFormAmara",
             captionFormVtt: "infvp-captionFormVtt",
             transcriptFormAmara: "infvp-transcriptFormAmara",
             transcriptFormJson: "infvp-transcriptFormJson"
+        },
+        listeners: {
+            afterRender: {
+                listener: "infusion_vp.videoPlayerPlugin.bindDOMEvents",
+                args: ["{videoPlayerPlugin}"]
+            }
         }
     });
 
@@ -87,6 +105,30 @@ debugMode: true
                 optionlist: "${videoFormats}",
                 optionnames: "${videoFormatNames}"
             },
+            expander: [{
+                type: "fluid.renderer.selection.inputs",
+                rowID: "captionFormatChooserRow",
+                labelID: "captionFormatChooserLabel",
+                inputID: "captionFormatChooserButton",
+                selectID: "captionFormatChooser",
+                tree: {
+                    selection: "${captionFormats.selection}",
+                    optionlist: "${captionFormats.choices}",
+                    optionnames: "${captionFormats.names}"
+                }
+            },
+            {
+                type: "fluid.renderer.selection.inputs",
+                rowID: "transcriptFormatChooserRow",
+                labelID: "transcriptFormatChooserLabel",
+                inputID: "transcriptFormatChooserButton",
+                selectID: "transcriptFormatChooser",
+                tree: {
+                    selection: "${transcriptFormats.selection}",
+                    optionlist: "${transcriptFormats.choices}",
+                    optionnames: "${transcriptFormats.names}"
+                }
+            }],
             captionUrl: "${captionUrl}",
             captionLang: {
                 selection: "${captionLang}",
@@ -98,11 +140,6 @@ debugMode: true
                 optionlist: "${attachedCaptionFiles}",
                 optionnames: "${attachedCaptionFiles}"
             },
-            captionFormat: {
-                selection: "${captionFormat}",
-                optionlist: "${captionFormats}",
-                optionnames: "${captionFormatNames}"
-            },
             transcriptUrl: "${transcriptUrl}",
             transcriptLang: {
                 selection: "${transcriptLang}",
@@ -113,23 +150,12 @@ debugMode: true
                 selection: "${transcriptName}",
                 optionlist: "${attachedTranscriptFiles}",
                 optionnames: "${attachedTranscriptFiles}"
-            },
-            transcriptFormat: {
-                selection: "${transcriptFormat}",
-                optionlist: "${transcriptFormats}",
-                optionnames: "${transcriptFormatNames}"
             }
         };
         return tree;
     };
 
-    infusion_vp.videoPlayerPlugin.preInit = function (that) {
-        // these are currently arrays of string file names
-        that.model.attachedCaptionFiles = phpVars.captionList;
-        that.model.attachedTranscriptFiles = phpVars.transcriptList;
-    };
-
-    infusion_vp.videoPlayerPlugin.finalInit = function (that) {
+    infusion_vp.videoPlayerPlugin.bindDOMEvents = function (that) {
         that.locate("insertIntoPost").click(function () {
             infusion_vp.videoPlayerPlugin.insertVideoPlayer(that);
         });
@@ -141,12 +167,24 @@ debugMode: true
         });
 
         // TODO: These toggles won't toggle if the same radio button is pressed twice
+/*
+this should be based on model now
         that.locate("captionFormatChooser").click(function () {
             that.locate("captionFormatForm").toggleClass(that.options.styles.captionFormAmara).toggleClass(that.options.styles.captionFormVtt);
         });
         that.locate("transcriptFormatChooser").click(function () {
             that.locate("transcriptFormatForm").toggleClass(that.options.styles.transcriptFormAmara).toggleClass(that.options.styles.transcriptFormJson)
         });
+*/
+    };
+
+    infusion_vp.videoPlayerPlugin.preInit = function (that) {
+        // these are currently arrays of string file names
+        that.model.attachedCaptionFiles = phpVars.captionList;
+        that.model.attachedTranscriptFiles = phpVars.transcriptList;
+    };
+
+    infusion_vp.videoPlayerPlugin.finalInit = function (that) {
 
     };
 

@@ -13,32 +13,26 @@
     </div>
 
     <h2>Captions</h2>
-    <label>
-	    <input type="radio" class="infvpc-captionFormatChooser" name="captionType" id="amaraCaption" checked="checked">Amara
-	</label>
-    <label>
-	    <input type="radio" class="infvpc-captionFormatChooser" name="captionType" id="vttCaption">VTT
-	</label>
+	<span class="infvpc-captionFormatChooserRow">
+	    <label class="infvpc-captionFormatChooserLabel" for="infvpc-captionFormatChooserId">label</label>
+	    <input type="radio" class="infvpc-captionFormatChooser" id="infvpc-captionFormatChooserId" >
+	</span>
 
 	<div class="infvpc-captionFormatForm infvp-captionFormatForm infvp-captionFormAmara">
 		<div class="infvp-captionFormAmara">
             <label  for="infvpc-captionUrl">Caption URL:</label>
             <input type='text' id='infvpc-captionUrl' />
-            <label for="infvpc-captionLang">Language:</label>
-            <select id="infvpc-captionLang">
-				<option value="">options not loaded yet</option>
-            </select>
 		</div>
 		<div class="infvp-captionFormVtt">
             <label  for="infvpc-captionName">Caption File Name:</label>
             <select id="infvpc-captionName">
 				<option value="">options not loaded yet</option>
             </select>
-            <label for="infvpc-captionFormat">Format:</label>
-	        <select id="infvpc-captionFormat">
-	            <option value="">options not loaded yet</option>
-	        </select>
 		</div>
+        <label for="infvpc-captionLang">Language:</label>
+        <select id="infvpc-captionLang">
+			<option value="">options not loaded yet</option>
+        </select>
 	</div>
 
     <div class="infvpc-captionList">
@@ -49,32 +43,26 @@
     <button class="infvpc-addAnotherCaption">Add another caption</button>
 
     <h2>Transcripts</h2>
-    <label>
-	    <input type="radio" class="infvpc-transcriptFormatChooser" name="transcriptType" id="amaraTranscript" checked="checked">Amara
-	</label>
-    <label>
-	    <input type="radio" class="infvpc-transcriptFormatChooser" name="transcriptType" id="jsonTranscript">JSONcc
-	</label>
+	<span class="infvpc-transcriptFormatChooserRow">
+	    <label class="infvpc-transcriptFormatChooserLabel" for="infvpc-transcriptFormatChooserId">label</label>
+	    <input type="radio" class="infvpc-transcriptFormatChooser" id="infvpc-transcriptFormatChooserId" >
+	</span>
 
 	<div class="infvpc-transcriptFormatForm infvp-transcriptFormatForm infvp-transcriptFormAmara">
 		<div class="infvp-transcriptFormAmara">
             <label  for="infvpc-transcriptUrl">Transcript URL:</label>
             <input type='text' id='infvpc-transcriptUrl' />
-            <label for="infvpc-transcriptLang">Language:</label>
-            <select id="infvpc-transcriptLang">
-				<option value="">options not loaded yet</option>
-            </select>
 		</div>
 		<div class="infvp-transcriptFormJson">
             <label  for="infvpc-transcriptName">Transcript File Name:</label>
             <select id="infvpc-transcriptName">
 				<option value="">options not loaded yet</option>
             </select>
-            <label for="infvpc-transcriptFormat">Format:</label>
-	        <select id="infvpc-transcriptFormat">
-	            <option value="">options not loaded yet</option>
-	        </select>
 		</div>
+        <label for="infvpc-transcriptLang">Language:</label>
+        <select id="infvpc-transcriptLang">
+			<option value="">options not loaded yet</option>
+        </select>
 	</div>
 
     <button class="infvpc-addAnotherTranscript">Add another transcript</button>
