@@ -32,17 +32,12 @@ debugMode: true
             videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
             languageCodes: ["en", "fr", "es"],
             languageNames: ["English", "French", "Spanish"],
-
-            captionFormats: {
-                choices: ["text/amarajson", "text/vtt"],
-                names: ["Amara", "VTT"],
-                selection: "text/amarajson"
-            },
-            transcriptFormats: {
-                choices: ["text/amarajson", "text/jsoncc"],
-                names: ["Amara", "JSONcc"],
-                selection: "text/amarajson"
-            }
+            captionFormats: ["text/amarajson", "text/vtt"],
+            captionFormatNames: ["Amara", "VTT"],
+            captionFormat: "text/amarajson",
+            transcriptFormats: ["text/amarajson", "text/jsoncc"],
+            transcriptFormatNames: ["Amara", "JSONcc"],
+            transcriptFormat: "text/amarajson"
         },
         selectors: {
             // selectors for the form
@@ -57,6 +52,7 @@ debugMode: true
             transcriptLang: "#infvpc-transcriptLang",
             transcriptList: ".infvpc-transcriptList",
 
+            // TODO: Need to remove all the duplication around captions vs transcripts
             captionFormatChooserRow: ".infvpc-captionFormatChooserRow",
             captionFormatChooserButton: ".infvpc-captionFormatChooser",
             captionFormatChooserLabel: ".infvpc-captionFormatChooserLabel",
@@ -83,10 +79,14 @@ debugMode: true
                             "addAnotherTranscript", "insertIntoPost"],
         produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
         styles: {
-            captionFormAmara: "infvp-captionFormAmara",
-            captionFormVtt: "infvp-captionFormVtt",
-            transcriptFormAmara: "infvp-transcriptFormAmara",
-            transcriptFormJson: "infvp-transcriptFormJson"
+            captionForm: {
+                "text/amarajson":  "infvp-captionFormAmara",
+                "text/vtt":  "infvp-captionFormVtt"
+            },
+            transcriptForm: {
+                "text/amarajson":  "infvp-transcriptFormAmara",
+                "text/jsoncc":  "infvp-transcriptFormJson"
+            }
         },
         listeners: {
             afterRender: {
@@ -112,9 +112,9 @@ debugMode: true
                 inputID: "captionFormatChooserButton",
                 selectID: "captionFormatChooser",
                 tree: {
-                    selection: "${captionFormats.selection}",
-                    optionlist: "${captionFormats.choices}",
-                    optionnames: "${captionFormats.names}"
+                    selection: "${captionFormat}",
+                    optionlist: "${captionFormats}",
+                    optionnames: "${captionFormatNames}"
                 }
             },
             {
@@ -124,9 +124,9 @@ debugMode: true
                 inputID: "transcriptFormatChooserButton",
                 selectID: "transcriptFormatChooser",
                 tree: {
-                    selection: "${transcriptFormats.selection}",
-                    optionlist: "${transcriptFormats.choices}",
-                    optionnames: "${transcriptFormats.names}"
+                    selection: "${transcriptFormat}",
+                    optionlist: "${transcriptFormats}",
+                    optionnames: "${transcriptFormatNames}"
                 }
             }],
             captionUrl: "${captionUrl}",
@@ -166,16 +166,12 @@ debugMode: true
             that.locate("captionList").append(copy);
         });
 
-        // TODO: These toggles won't toggle if the same radio button is pressed twice
-/*
-this should be based on model now
-        that.locate("captionFormatChooser").click(function () {
-            that.locate("captionFormatForm").toggleClass(that.options.styles.captionFormAmara).toggleClass(that.options.styles.captionFormVtt);
+        that.applier.modelChanged.addListener("captionFormat", function (model, oldModel, changeRequest) {
+            that.locate("captionFormatForm").removeClass(that.options.styles.captionForm[oldModel.captionFormat]).addClass(that.options.styles.captionForm[model.captionFormat]);
         });
-        that.locate("transcriptFormatChooser").click(function () {
-            that.locate("transcriptFormatForm").toggleClass(that.options.styles.transcriptFormAmara).toggleClass(that.options.styles.transcriptFormJson)
+        that.applier.modelChanged.addListener("transcriptFormat", function (model, oldModel, changeRequest) {
+            that.locate("transcriptFormatForm").removeClass(that.options.styles.transcriptForm[oldModel.transcriptFormat]).addClass(that.options.styles.transcriptForm[model.transcriptFormat]);
         });
-*/
     };
 
     infusion_vp.videoPlayerPlugin.preInit = function (that) {
