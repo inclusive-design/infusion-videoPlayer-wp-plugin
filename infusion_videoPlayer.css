@@ -13,10 +13,12 @@
 }
 
 table.infvp-captionList,
-table.infvp-transcriptList {
+table.infvp-transcriptList,
+table.infvp-videoFormatList {
     border-collapse: collapse;
 }
 table.infvp-captionList tr,
+table.infvp-transcriptList tr,
 table.infvp-transcriptList tr {
     border-bottom: 1px solid #DFDFDF;
 }

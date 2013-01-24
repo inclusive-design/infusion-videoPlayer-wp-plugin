@@ -242,7 +242,7 @@ debugMode: true
         that.locate("addThisCaption").click(function () {
             infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "caption",
                 {"captionLang": null,
-                 "captionFormat": "text/amarajson",
+                 "captionFormat": "text/amarajson", // TODO: Fix this!
                  "captionUrl": null,
                  "captionName": null}
             );
@@ -250,7 +250,7 @@ debugMode: true
         that.locate("addThisTranscript").click(function () {
             infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcript",
                 {"transcriptLang": null,
-                 "transcriptFormat": "text/amarajson",
+                 "transcriptFormat": "text/amarajson", // TODO: Fix this!
                  "transcriptUrl": null,
                  "transcriptName": null}
             );
@@ -290,24 +290,11 @@ debugMode: true
     };
 
     infusion_vp.videoPlayerPlugin.insertVideoPlayer = function (that) {
-        var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
-        
-        var captionLangLabel = $("option:selected", that.locate("infvpc-captionLang")).text().trim();
-        var transcriptLangLabel = $("option:selected", that.locate("infvpc-transcriptLang")).text().trim();
-    
         var opts = {
             videoTitle: that.model.videoTitle,
             video: {
-                sources: [{
-                    src: that.model.videoUrl,
-                    type: that.model.videoFormat
-                }],
-                captions: [{
-                    src: that.model.captionUrl,
-                    type: that.model.captionFormat,
-                    srclang: that.model.captionLang,
-                    label: captionLangLabel
-                }],
+                sources: [],
+                captions: [],
                 transcripts: [{
                     src: that.model.transcriptUrl,
                     type: that.model.transcriptFormat,
@@ -324,18 +311,34 @@ debugMode: true
                 }
             }
         };
-        if (that.model.captionFormat === "text/vtt") {
-            opts.video.captions[0].src = that.model.captionName;
-        }
-        if (that.model.transcriptFormat === "JSONcc") {
-            opts.video.transcripts[0].src = that.model.transcriptName;
-        }
+        fluid.each(that.model.videoFormats, function(entry, index) {
+            opts.video.sources[index] = {
+                src: entry.url,
+                type: entry.format
+            };
+        });
+        fluid.each(that.model.captionList, function(entry, index) {
+            opts.video.captions[index] = {
+                src: entry.ident,
+                type: entry.format,
+                srclang: entry.lang,
+                label: entry.langLabel
+            };
+        });
+        fluid.each(that.model.transcriptList, function(entry, index) {
+            opts.video.transcripts[index] = {
+                src: entry.ident,
+                type: entry.format,
+                srclang: entry.lang,
+                label: entry.langLabel
+            };
+        });
 
+        var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
         htmlString += "var opts = " + fluid.prettyPrintJSON(opts) + ";\n";
-
         htmlString += "fluid.videoPlayer('.infvpc-video-player', opts);";
-
         htmlString += "</script>";
+
         parent.send_to_editor(htmlString);
     };
 })(jQuery);
