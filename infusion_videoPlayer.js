@@ -37,9 +37,11 @@ debugMode: true
             captionFormats: ["text/amarajson", "text/vtt"],
             captionFormatNames: ["Amara", "VTT"],
             captionFormat: "text/amarajson",
+            captionList: [],
             transcriptFormats: ["text/amarajson", "JSONcc"],
             transcriptFormatNames: ["Amara", "JSONcc"],
-            transcriptFormat: "text/amarajson"
+            transcriptFormat: "text/amarajson",
+            transcriptList: []
         },
         selectors: {
             // selectors for the form
@@ -52,9 +54,15 @@ debugMode: true
             transcriptUrl: "#infvpc-transcriptUrl",
             transcriptName: "#infvpc-transcriptName",
             "infvpc-transcriptLang": "#infvpc-transcriptLang",
-            transcriptList: ".infvpc-transcriptList",
-
-            // TODO: Need to remove all the duplication around captions vs transcripts
+            // TODO: Really need to remove all the duplication around captions vs transcripts
+            captionListRow: ".infvpc-captionList-row",
+            captionListRowName: ".infvpc-captionList-name",
+            captionListRowLang: ".infvpc-captionList-lang",
+            captionListRowFormat: ".infvpc-captionList-format",
+            transcriptListRow: ".infvpc-transcriptList-row",
+            transcriptListRowName: ".infvpc-transcriptList-name",
+            transcriptListRowLang: ".infvpc-transcriptList-lang",
+            transcriptListRowFormat: ".infvpc-transcriptList-format",
             captionFormatChooserRow: ".infvpc-captionFormatChooserRow",
             captionFormatChooserButton: ".infvpc-captionFormatChooser",
             captionFormatChooserLabel: ".infvpc-captionFormatChooserLabel",
@@ -64,21 +72,20 @@ debugMode: true
 
             // other selectors
             captionList: ".infvpc-captionList",
-            addAnotherCaption: ".infvpc-addAnotherCaption",
-            captionTemplate: ".infvpc-captionTemplate",
+            addThisCaption: ".infvpc-addThisCaption",
             captionFormatForm: ".infvpc-captionFormatForm",
             captionFormAmara: ".infvpc-captionFormAmara",
             captionFormVtt: ".infvpc-captionFormVtt",
             transcriptFormatForm: ".infvpc-transcriptFormatForm",
             transcriptFormAmara: ".infvpc-transcriptFormAmara",
             transcriptFormVtt: ".infvpc-transcriptFormVtt",
-            addAnotherTranscript: ".infvpc-addAnotherTranscript",
+            addThisTranscript: ".infvpc-addThisTranscript",
             insertIntoPost: ".infvpc-insert"
         },
-        repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow"],
+        repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow", "captionListRow", "transcriptListRow"],
         selectorsToIgnore: ["captionList", "captionTemplate", "captionFormatForm",
-                            "transcriptList", "transcriptTemplate", "transcriptFormatForm",
-                            "addAnotherTranscript", "insertIntoPost"],
+                            "transcriptTemplate", "transcriptFormatForm",
+                            "addThisCaption", "addThisTranscript", "insertIntoPost"],
         produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
         styles: {
             captionForm: {
@@ -130,6 +137,26 @@ debugMode: true
                     optionlist: "${transcriptFormats}",
                     optionnames: "${transcriptFormatNames}"
                 }
+            },{
+                type: "fluid.renderer.repeat",
+                repeatID: "captionListRow",
+                controlledBy: "captionList",
+                pathAs: "caption",
+                tree: {
+                    captionListRowName: "${{caption}.ident}",
+                    captionListRowLang: "${{caption}.lang}",
+                    captionListRowFormat: "${{caption}.format}"
+                }
+            },{
+                type: "fluid.renderer.repeat",
+                repeatID: "transcriptListRow",
+                controlledBy: "transcriptList",
+                pathAs: "transcript",
+                tree: {
+                    transcriptListRowName: "${{transcript}.ident}",
+                    transcriptListRowLang: "${{transcript}.lang}",
+                    transcriptListRowFormat: "${{transcript}.format}"
+                }
             }],
             captionUrl: "${captionUrl}",
             "infvpc-captionLang": {
@@ -157,15 +184,47 @@ debugMode: true
         return tree;
     };
 
+    infusion_vp.videoPlayerPlugin.addItemToTrackList = function (that, trackType, modelPathsToReset) {
+        var trackList = that.model[trackType + "List"];
+        trackList.push({
+            lang: that.model[trackType + "Lang"],
+            langLabel: $("option:selected", that.locate("infvpc-captionLang")).text().trim(),
+            format: that.model[trackType + "Format"],
+            ident: (that.model[trackType + "Format"] === "text/amarajson" ? that.model[trackType + "Url"] : that.model[trackType + "Name"])
+        });
+        that.applier.requestChange(trackType + "List", trackList);
+
+        // reset the form
+        fluid.each(modelPathsToReset, function (value, key) {
+            that.applier.requestChange(key, value);
+        });
+
+        // redraw the interface
+        that.refreshView();
+    };
+
     infusion_vp.videoPlayerPlugin.bindDOMEvents = function (that) {
         that.locate("insertIntoPost").click(function () {
             infusion_vp.videoPlayerPlugin.insertVideoPlayer(that);
         });
 
         that.captionTemplate = that.locate("captionTemplate").clone();
-        that.locate("addAnotherCaption").click(function () {
-            var copy = that.captionTemplate.clone().removeClass("infvpc-captionTemplate"); // *********
-            that.locate("captionList").append(copy);
+
+        that.locate("addThisCaption").click(function () {
+            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "caption",
+                {"captionLang": null,
+                 "captionFormat": "text/amarajson",
+                 "captionUrl": null,
+                 "captionName": null}
+            );
+        });
+        that.locate("addThisTranscript").click(function () {
+            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcript",
+                {"transcriptLang": null,
+                 "transcriptFormat": "text/amarajson",
+                 "transcriptUrl": null,
+                 "transcriptName": null}
+            );
         });
 
         that.applier.modelChanged.addListener("captionFormat", function (model, oldModel, changeRequest) {

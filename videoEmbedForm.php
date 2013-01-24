@@ -13,6 +13,15 @@
     </div>
 
     <h2>Captions</h2>
+	<table class="infvpc-captionList infvp-captionList" border="0">
+		<tr class="infvpc-captionList-row">
+			<td><button class="infvpc-delete-caption">del</button></td>
+			<td class="infvpc-captionList-name">name</td>
+			<td class="infvpc-captionList-lang">language</td>
+			<td class="infvpc-captionList-format">format</td>
+		</tr>
+	</table>
+
 	<span class="infvpc-captionFormatChooserRow">
 	    <label class="infvpc-captionFormatChooserLabel" for="infvpc-captionFormatChooserId">label</label>
 	    <input type="radio" class="infvpc-captionFormatChooser" id="infvpc-captionFormatChooserId" >
@@ -35,14 +44,18 @@
         </select>
 	</div>
 
-    <div class="infvpc-captionList">
-        <div class="infvpc-captionTemplate">
-            <button class="infvpc-delete-caption">del</button>
-        </div>
-    </div>
-    <button class="infvpc-addAnotherCaption">Add another caption</button>
+    <button class="infvpc-addThisCaption">Add this caption</button>
 
     <h2>Transcripts</h2>
+	<table class="infvpc-transcriptList infvp-transcriptList" border="0">
+		<tr class="infvpc-transcriptList-row">
+			<td><button class="infvpc-delete-transcript">del</button></td>
+			<td class="infvpc-transcriptList-name">name</td>
+			<td class="infvpc-transcriptList-lang">language</td>
+			<td class="infvpc-transcriptList-format">format</td>
+		</tr>
+	</table>
+
 	<span class="infvpc-transcriptFormatChooserRow">
 	    <label class="infvpc-transcriptFormatChooserLabel" for="infvpc-transcriptFormatChooserId">label</label>
 	    <input type="radio" class="infvpc-transcriptFormatChooser" id="infvpc-transcriptFormatChooserId" >
@@ -65,7 +78,7 @@
         </select>
 	</div>
 
-    <button class="infvpc-addAnotherTranscript">Add another transcript</button>
+    <button class="infvpc-addThisTranscript">Add another transcript</button>
 
 
     <div>

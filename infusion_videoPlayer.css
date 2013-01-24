@@ -3,9 +3,20 @@
     width: inherit;
 }
 
+/* TODO: These caption/transcript styles should be generalized for any track (e.g. audio description) */
+
 .infvp-captionFormatForm.infvp-captionFormAmara .infvp-captionFormVtt,
 .infvp-captionFormatForm.infvp-captionFormVtt .infvp-captionFormAmara,
 .infvp-transcriptFormatForm.infvp-transcriptFormAmara .infvp-transcriptFormJson,
 .infvp-transcriptFormatForm.infvp-transcriptFormJson .infvp-transcriptFormAmara {
     display: none;
+}
+
+table.infvp-captionList,
+table.infvp-transcriptList {
+    border-collapse: collapse;
+}
+table.infvp-captionList tr,
+table.infvp-transcriptList tr {
+    border-bottom: 1px solid #DFDFDF;
 }
