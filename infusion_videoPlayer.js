@@ -22,8 +22,8 @@ var infusion_vp = infusion_vp || {};
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         renderOnInit: true,
         rendererOptions: {
-            autoBind: true,
-debugMode: true
+//debugMode: true,
+            autoBind: true
         },
         preInitFunction: "infusion_vp.videoPlayerPlugin.preInit",
         finalInitFunction: "infusion_vp.videoPlayerPlugin.finalInit",
@@ -37,16 +37,19 @@ debugMode: true
             supportedTranscriptFormats: ["text/amarajson", "JSONcc"],
             supportedTranscriptFormatNames: ["Amara", "JSONcc"],
 
-            videoFormats: [],
-            captionLang: "en",
-            transcriptLang: "en",
-            captionFormat: "text/amarajson",
-            captionList: [],
-            transcriptFormat: "text/amarajson",
-            transcriptList: []
+            sources: [],
+            captions: [],
+            transcripts: [],
+
+            // initialize some defaults
+            videoFormat: "video/webm",
+            captionsFormat: "text/amarajson",
+            captionsLang: "en",
+            transcriptsFormat: "text/amarajson",
+            transcriptsLang: "en"
         },
         selectors: {
-            // selectors for the form
+            // selectors for the forms
             videoUrl: "#infvpc-videoUrl",
             videoTitle: "#infvpc-videoTitle",
             videoFormat: "#infvpc-videoFormat",
@@ -127,7 +130,7 @@ debugMode: true
                 inputID: "captionFormatChooserButton",
                 selectID: "captionFormatChooser",
                 tree: {
-                    selection: "${captionFormat}",
+                    selection: "${captionsFormat}",
                     optionlist: "${supportedCaptionFormats}",
                     optionnames: "${supportedCaptionFormatNames}"
                 }
@@ -139,59 +142,59 @@ debugMode: true
                 inputID: "transcriptFormatChooserButton",
                 selectID: "transcriptFormatChooser",
                 tree: {
-                    selection: "${transcriptFormat}",
+                    selection: "${transcriptsFormat}",
                     optionlist: "${supportedTranscriptFormats}",
                     optionnames: "${supportedTranscriptFormatNames}"
                 }
             },{
                 type: "fluid.renderer.repeat",
                 repeatID: "videoFormatListRow",
-                controlledBy: "videoFormats",
+                controlledBy: "sources",
                 pathAs: "videoFormat",
                 tree: {
-                    videoFormatListRowUrl: "${{videoFormat}.url}",
+                    videoFormatListRowUrl: "${{videoFormat}.src}",
                     videoFormatListRowFormat: "${{videoFormat}.format}"
                 }
             },{
                 type: "fluid.renderer.repeat",
                 repeatID: "captionListRow",
-                controlledBy: "captionList",
+                controlledBy: "captions",
                 pathAs: "caption",
                 tree: {
-                    captionListRowName: "${{caption}.ident}",
+                    captionListRowName: "${{caption}.src}",
                     captionListRowLang: "${{caption}.lang}",
                     captionListRowFormat: "${{caption}.format}"
                 }
             },{
                 type: "fluid.renderer.repeat",
                 repeatID: "transcriptListRow",
-                controlledBy: "transcriptList",
+                controlledBy: "transcripts",
                 pathAs: "transcript",
                 tree: {
-                    transcriptListRowName: "${{transcript}.ident}",
+                    transcriptListRowName: "${{transcript}.src}",
                     transcriptListRowLang: "${{transcript}.lang}",
                     transcriptListRowFormat: "${{transcript}.format}"
                 }
             }],
-            captionUrl: "${captionUrl}",
+            captionUrl: "${captionsUrl}",
             "infvpc-captionLang": {
-                selection: "${captionLang}",
+                selection: "${captionsLang}",
                 optionlist: "${languageCodes}",
                 optionnames: "${languageNames}"
             },
             captionName: {
-                selection: "${captionName}",
+                selection: "${captionsName}",
                 optionlist: "${captionFileUrls}",
                 optionnames: "${captionFileNames}"
             },
-            transcriptUrl: "${transcriptUrl}",
+            transcriptUrl: "${transcriptsUrl}",
             "infvpc-transcriptLang": {
-                selection: "${transcriptLang}",
+                selection: "${transcriptsLang}",
                 optionlist: "${languageCodes}",
                 optionnames: "${languageNames}"
             },
             transcriptName: {
-                selection: "${transcriptName}",
+                selection: "${transcriptsName}",
                 optionlist: "${transcriptFileUrls}",
                 optionnames: "${transcriptFileNames}"
             }
@@ -200,14 +203,14 @@ debugMode: true
     };
 
     infusion_vp.videoPlayerPlugin.addItemToTrackList = function (that, trackType, modelPathsToReset) {
-        var trackList = that.model[trackType + "List"];
+        var trackList = fluid.copy(that.model[trackType]);
         trackList.push({
             lang: that.model[trackType + "Lang"],
             langLabel: $("option:selected", that.locate("infvpc-captionLang")).text().trim(),
             format: that.model[trackType + "Format"],
-            ident: (that.model[trackType + "Format"] === "text/amarajson" ? that.model[trackType + "Url"] : that.model[trackType + "Name"])
+            src: (that.model[trackType + "Format"] === "text/amarajson" ? that.model[trackType + "Url"] : that.model[trackType + "Name"])
         });
-        that.applier.requestChange(trackType + "List", trackList);
+        that.applier.requestChange(trackType, trackList);
 
         // reset the form
         fluid.each(modelPathsToReset, function (value, key) {
@@ -224,44 +227,60 @@ debugMode: true
         });
 
         that.locate("addThisVideoFormat").click(function () {
-            var videoFormats = that.model.videoFormats;
-            videoFormats.push({
-                url: that.model.videoUrl,
+            var sources = fluid.copy(that.model.sources);
+            sources.push({
+                src: that.model.videoUrl,
                 format: that.model.videoFormat
             });
-            that.applier.requestChange("videoFormats", videoFormats);
+            that.applier.requestChange("sources", sources);
 
             // reset the form
             that.applier.requestChange("videoUrl", null);
-            that.applier.requestChange("videoFormat", null);
+            that.applier.requestChange("videoFormat", "video/webm");
 
             // redraw the interface
             that.refreshView();
         });
 
+        // TODO: Need a better way to deal with default formats and languages
         that.locate("addThisCaption").click(function () {
-            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "caption",
-                {"captionLang": null,
-                 "captionFormat": "text/amarajson", // TODO: Fix this!
-                 "captionUrl": null,
-                 "captionName": null}
+            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "captions",
+                {"captionsLang": "en",
+                 "captionsFormat": "text/amarajson",
+                 "captionsUrl": null,
+                 "captionsName": null}
             );
         });
         that.locate("addThisTranscript").click(function () {
-            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcript",
-                {"transcriptLang": null,
-                 "transcriptFormat": "text/amarajson", // TODO: Fix this!
-                 "transcriptUrl": null,
-                 "transcriptName": null}
+            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcripts",
+                {"transcriptsLang": "en",
+                 "transcriptsFormat": "text/amarajson",
+                 "transcriptsUrl": null,
+                 "transcriptsName": null}
             );
         });
 
-        that.applier.modelChanged.addListener("captionFormat", function (model, oldModel, changeRequest) {
-            that.locate("captionFormatForm").removeClass(that.options.styles.captionForm[oldModel.captionFormat]).addClass(that.options.styles.captionForm[model.captionFormat]);
+        that.applier.guards.addListener("sources", infusion_vp.videoPlayerPlugin.validateUrl);
+        that.applier.guards.addListener("captions", infusion_vp.videoPlayerPlugin.validateUrl);
+        that.applier.guards.addListener("transcripts", infusion_vp.videoPlayerPlugin.validateUrl);
+
+        that.applier.modelChanged.addListener("captionsFormat", function (model, oldModel, changeRequest) {
+            that.locate("captionFormatForm").removeClass(that.options.styles.captionForm[oldModel.captionsFormat]).addClass(that.options.styles.captionForm[model.captionsFormat]);
         });
-        that.applier.modelChanged.addListener("transcriptFormat", function (model, oldModel, changeRequest) {
-            that.locate("transcriptFormatForm").removeClass(that.options.styles.transcriptForm[oldModel.transcriptFormat]).addClass(that.options.styles.transcriptForm[model.transcriptFormat]);
+        that.applier.modelChanged.addListener("transcriptsFormat", function (model, oldModel, changeRequest) {
+            that.locate("transcriptFormatForm").removeClass(that.options.styles.transcriptForm[oldModel.transcriptsFormat]).addClass(that.options.styles.transcriptForm[model.transcriptsFormat]);
         });
+    };
+
+    /*
+     * Check that the URL field of the object being added to the array is not empty
+     */
+    infusion_vp.videoPlayerPlugin.validateUrl = function (model, changeRequest) {
+        if (!changeRequest.value[changeRequest.value.length - 1].src) {
+            // need to fire something that will trigger a message; need to distinguish which field
+            console.log("sorry, you need to specify an URL for this");
+            return false;
+        }
     };
 
     infusion_vp.videoPlayerPlugin.preInit = function (that) {
@@ -281,8 +300,8 @@ debugMode: true
             that.model.transcriptFileUrls = ["nothing here yet"];
         }
 
-        that.model.captionName = that.model.captionFileUrls[0];
-        that.model.transcriptName = that.model.transcriptFileUrls[0];
+        that.model.captionsName = that.model.captionFileUrls[0];
+        that.model.transcriptsName = that.model.transcriptFileUrls[0];
     };
 
     infusion_vp.videoPlayerPlugin.finalInit = function (that) {
@@ -290,17 +309,18 @@ debugMode: true
     };
 
     infusion_vp.videoPlayerPlugin.insertVideoPlayer = function (that) {
+        if (that.model.sources.length === 0) {
+            // need to fire something that will trigger a message
+            console.log("You must provide at least one video URL.")
+            return;
+        }
+
         var opts = {
             videoTitle: that.model.videoTitle,
             video: {
                 sources: [],
                 captions: [],
-                transcripts: [{
-                    src: that.model.transcriptUrl,
-                    type: that.model.transcriptFormat,
-                    srclang: that.model.transcriptLang,
-                    label: transcriptLangLabel
-                }]
+                transcripts: []
             },
             templates: {
                 videoPlayer: {
@@ -311,23 +331,23 @@ debugMode: true
                 }
             }
         };
-        fluid.each(that.model.videoFormats, function(entry, index) {
+        fluid.each(that.model.sources, function(entry, index) {
             opts.video.sources[index] = {
-                src: entry.url,
+                src: entry.src,
                 type: entry.format
             };
         });
-        fluid.each(that.model.captionList, function(entry, index) {
+        fluid.each(that.model.captions, function(entry, index) {
             opts.video.captions[index] = {
-                src: entry.ident,
+                src: entry.src,
                 type: entry.format,
                 srclang: entry.lang,
                 label: entry.langLabel
             };
         });
-        fluid.each(that.model.transcriptList, function(entry, index) {
+        fluid.each(that.model.transcripts, function(entry, index) {
             opts.video.transcripts[index] = {
-                src: entry.ident,
+                src: entry.src,
                 type: entry.format,
                 srclang: entry.lang,
                 label: entry.langLabel
