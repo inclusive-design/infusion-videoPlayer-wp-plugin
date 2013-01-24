@@ -28,18 +28,20 @@ debugMode: true
         preInitFunction: "infusion_vp.videoPlayerPlugin.preInit",
         finalInitFunction: "infusion_vp.videoPlayerPlugin.finalInit",
         model: {
-            videoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
-            videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
             languageCodes: ["en", "fr", "es"],
             languageNames: ["English", "French", "Spanish"],
+            supportedVideoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
+            supportedVideoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
+            supportedCaptionFormats: ["text/amarajson", "text/vtt"],
+            supportedCaptionFormatNames: ["Amara", "VTT"],
+            supportedTranscriptFormats: ["text/amarajson", "JSONcc"],
+            supportedTranscriptFormatNames: ["Amara", "JSONcc"],
+
+            videoFormats: [],
             captionLang: "en",
             transcriptLang: "en",
-            captionFormats: ["text/amarajson", "text/vtt"],
-            captionFormatNames: ["Amara", "VTT"],
             captionFormat: "text/amarajson",
             captionList: [],
-            transcriptFormats: ["text/amarajson", "JSONcc"],
-            transcriptFormatNames: ["Amara", "JSONcc"],
             transcriptFormat: "text/amarajson",
             transcriptList: []
         },
@@ -48,6 +50,10 @@ debugMode: true
             videoUrl: "#infvpc-videoUrl",
             videoTitle: "#infvpc-videoTitle",
             videoFormat: "#infvpc-videoFormat",
+            videoFormatListRow: ".infvpc-videoFormatList-row",
+            videoFormatListRowUrl: ".infvpc-videoFormatList-url",
+            videoFormatListRowFormat: ".infvpc-videoFormatList-format",
+            addThisVideoFormat: ".infvpc-addThisVideoFormat",
             captionUrl: "#infvpc-captionUrl",
             captionName: "#infvpc-captionName",
             "infvpc-captionLang": "#infvpc-captionLang",
@@ -82,10 +88,10 @@ debugMode: true
             addThisTranscript: ".infvpc-addThisTranscript",
             insertIntoPost: ".infvpc-insert"
         },
-        repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow", "captionListRow", "transcriptListRow"],
-        selectorsToIgnore: ["captionList", "captionTemplate", "captionFormatForm",
-                            "transcriptTemplate", "transcriptFormatForm",
-                            "addThisCaption", "addThisTranscript", "insertIntoPost"],
+        repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow", "videoFormatListRow", "captionListRow", "transcriptListRow"],
+        selectorsToIgnore: ["captionList", "captionFormatForm",
+                            "transcriptFormatForm",
+                            "addThisCaption", "addThisTranscript", "addThisVideoFormat", "insertIntoPost"],
         produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
         styles: {
             captionForm: {
@@ -111,8 +117,8 @@ debugMode: true
             videoUrl: "${videoUrl}",
             videoFormat: {
                 selection: "${videoFormat}",
-                optionlist: "${videoFormats}",
-                optionnames: "${videoFormatNames}"
+                optionlist: "${supportedVideoFormats}",
+                optionnames: "${supportedVideoFormatNames}"
             },
             expander: [{
                 type: "fluid.renderer.selection.inputs",
@@ -122,8 +128,8 @@ debugMode: true
                 selectID: "captionFormatChooser",
                 tree: {
                     selection: "${captionFormat}",
-                    optionlist: "${captionFormats}",
-                    optionnames: "${captionFormatNames}"
+                    optionlist: "${supportedCaptionFormats}",
+                    optionnames: "${supportedCaptionFormatNames}"
                 }
             },
             {
@@ -134,8 +140,17 @@ debugMode: true
                 selectID: "transcriptFormatChooser",
                 tree: {
                     selection: "${transcriptFormat}",
-                    optionlist: "${transcriptFormats}",
-                    optionnames: "${transcriptFormatNames}"
+                    optionlist: "${supportedTranscriptFormats}",
+                    optionnames: "${supportedTranscriptFormatNames}"
+                }
+            },{
+                type: "fluid.renderer.repeat",
+                repeatID: "videoFormatListRow",
+                controlledBy: "videoFormats",
+                pathAs: "videoFormat",
+                tree: {
+                    videoFormatListRowUrl: "${{videoFormat}.url}",
+                    videoFormatListRowFormat: "${{videoFormat}.format}"
                 }
             },{
                 type: "fluid.renderer.repeat",
@@ -208,7 +223,21 @@ debugMode: true
             infusion_vp.videoPlayerPlugin.insertVideoPlayer(that);
         });
 
-        that.captionTemplate = that.locate("captionTemplate").clone();
+        that.locate("addThisVideoFormat").click(function () {
+            var videoFormats = that.model.videoFormats;
+            videoFormats.push({
+                url: that.model.videoUrl,
+                format: that.model.videoFormat
+            });
+            that.applier.requestChange("videoFormats", videoFormats);
+
+            // reset the form
+            that.applier.requestChange("videoUrl", null);
+            that.applier.requestChange("videoFormat", null);
+
+            // redraw the interface
+            that.refreshView();
+        });
 
         that.locate("addThisCaption").click(function () {
             infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "caption",

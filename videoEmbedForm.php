@@ -1,8 +1,16 @@
 <div class="embed-video-player-form">
+    <h2>Video</h2>
     <div>
         <label for="infvpc-videoTitle">Video Title:</label>
         <input type='text' id='infvpc-videoTitle' />
     </div>
+	<table class="infvpc-videoFormatList infvp-videoFormat" border="0">
+		<tr class="infvpc-videoFormatList-row">
+			<td><button class="infvpc-delete-videoFormat">del</button></td>
+			<td class="infvpc-videoFormatList-url">url</td>
+			<td class="infvpc-videoFormatList-format">format</td>
+		</tr>
+	</table>
     <div>
         <label for="infvpc-videoUrl">Video URL:</label>
         <input type='text' id='infvpc-videoUrl' />
@@ -11,6 +19,7 @@
             <option value="">options not loaded yet</option>
         </select>
     </div>
+    <button class="infvpc-addThisVideoFormat">Add this video format</button>
 
     <h2>Captions</h2>
 	<table class="infvpc-captionList infvp-captionList" border="0">
@@ -78,7 +87,7 @@
         </select>
 	</div>
 
-    <button class="infvpc-addThisTranscript">Add another transcript</button>
+    <button class="infvpc-addThisTranscript">Add this transcript</button>
 
 
     <div>
