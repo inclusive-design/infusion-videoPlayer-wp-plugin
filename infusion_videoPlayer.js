@@ -9,7 +9,7 @@ You may obtain a copy of the ECL 2.0 License and BSD License at
 https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 */
 
-/*global jQuery, window, fluid*/
+/*global jQuery, fluid, phpVars*/
 
 // JSLint options 
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
@@ -80,7 +80,6 @@ var infusion_vp = infusion_vp || {};
             transcriptFormatChooserLabel: ".infvpc-transcriptFormatChooserLabel",
 
             // other selectors
-            captionList: ".infvpc-captionList",
             addThisCaption: ".infvpc-addThisCaption",
             captionFormatForm: ".infvpc-captionFormatForm",
             captionFormAmara: ".infvpc-captionFormAmara",
@@ -92,9 +91,9 @@ var infusion_vp = infusion_vp || {};
             insertIntoPost: ".infvpc-insert"
         },
         repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow", "videoFormatListRow", "captionListRow", "transcriptListRow"],
-        selectorsToIgnore: ["captionList", "captionFormatForm",
-                            "transcriptFormatForm",
-                            "addThisCaption", "addThisTranscript", "addThisVideoFormat", "insertIntoPost"],
+        selectorsToIgnore: ["captionFormatForm", "transcriptFormatForm",
+                            "addThisCaption", "addThisTranscript", "addThisVideoFormat",
+                            "insertIntoPost"],
         produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
         styles: {
             captionForm: {
@@ -134,8 +133,7 @@ var infusion_vp = infusion_vp || {};
                     optionlist: "${supportedCaptionFormats}",
                     optionnames: "${supportedCaptionFormatNames}"
                 }
-            },
-            {
+            }, {
                 type: "fluid.renderer.selection.inputs",
                 rowID: "transcriptFormatChooserRow",
                 labelID: "transcriptFormatChooserLabel",
@@ -146,7 +144,7 @@ var infusion_vp = infusion_vp || {};
                     optionlist: "${supportedTranscriptFormats}",
                     optionnames: "${supportedTranscriptFormatNames}"
                 }
-            },{
+            }, {
                 type: "fluid.renderer.repeat",
                 repeatID: "videoFormatListRow",
                 controlledBy: "sources",
@@ -155,7 +153,7 @@ var infusion_vp = infusion_vp || {};
                     videoFormatListRowUrl: "${{videoFormat}.src}",
                     videoFormatListRowFormat: "${{videoFormat}.format}"
                 }
-            },{
+            }, {
                 type: "fluid.renderer.repeat",
                 repeatID: "captionListRow",
                 controlledBy: "captions",
@@ -165,7 +163,7 @@ var infusion_vp = infusion_vp || {};
                     captionListRowLang: "${{caption}.lang}",
                     captionListRowFormat: "${{caption}.format}"
                 }
-            },{
+            }, {
                 type: "fluid.renderer.repeat",
                 repeatID: "transcriptListRow",
                 controlledBy: "transcripts",
@@ -244,20 +242,20 @@ var infusion_vp = infusion_vp || {};
 
         // TODO: Need a better way to deal with default formats and languages
         that.locate("addThisCaption").click(function () {
-            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "captions",
-                {"captionsLang": "en",
-                 "captionsFormat": "text/amarajson",
-                 "captionsUrl": null,
-                 "captionsName": null}
-            );
+            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "captions", {
+                "captionsLang": "en",
+                "captionsFormat": "text/amarajson",
+                "captionsUrl": null,
+                "captionsName": null
+            });
         });
         that.locate("addThisTranscript").click(function () {
-            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcripts",
-                {"transcriptsLang": "en",
-                 "transcriptsFormat": "text/amarajson",
-                 "transcriptsUrl": null,
-                 "transcriptsName": null}
-            );
+            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcripts", {
+                "transcriptsLang": "en",
+                "transcriptsFormat": "text/amarajson",
+                "transcriptsUrl": null,
+                "transcriptsName": null
+            });
         });
 
         that.applier.guards.addListener("sources", infusion_vp.videoPlayerPlugin.validateUrl);
@@ -311,7 +309,7 @@ var infusion_vp = infusion_vp || {};
     infusion_vp.videoPlayerPlugin.insertVideoPlayer = function (that) {
         if (that.model.sources.length === 0) {
             // need to fire something that will trigger a message
-            console.log("You must provide at least one video URL.")
+            console.log("You must provide at least one video URL.");
             return;
         }
 
@@ -331,13 +329,13 @@ var infusion_vp = infusion_vp || {};
                 }
             }
         };
-        fluid.each(that.model.sources, function(entry, index) {
+        fluid.each(that.model.sources, function (entry, index) {
             opts.video.sources[index] = {
                 src: entry.src,
                 type: entry.format
             };
         });
-        fluid.each(that.model.captions, function(entry, index) {
+        fluid.each(that.model.captions, function (entry, index) {
             opts.video.captions[index] = {
                 src: entry.src,
                 type: entry.format,
@@ -345,7 +343,7 @@ var infusion_vp = infusion_vp || {};
                 label: entry.langLabel
             };
         });
-        fluid.each(that.model.transcripts, function(entry, index) {
+        fluid.each(that.model.transcripts, function (entry, index) {
             opts.video.transcripts[index] = {
                 src: entry.src,
                 type: entry.format,
