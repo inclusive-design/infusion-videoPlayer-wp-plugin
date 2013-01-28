@@ -19,23 +19,22 @@ var infusion_vp = infusion_vp || {};
 (function ($) {
 
     $("document").ready(function () {
-        // TODO: This is OBVIOUSLY not the way to get the markup into the doc; load from template?
-        $("body").prepend(' <!-- begin markup for UI Options Fat Panel -->' +
-            '    <div class="flc-uiOptions-fatPanel fl-uiOptions-fatPanel">' +
-            '        <div id="myUIOptions" class="flc-slidingPanel-panel flc-uiOptions-iframe"></div>' +
-            '        <div class="fl-panelBar">' +
-            '            <button class="flc-slidingPanel-toggleButton fl-toggleButton">Show/Hide</button>' +
-            '        </div>' +
-            '    </div>' +
-            '    <!-- end markup for UI Options Fat Panel -->');
+        $.ajax(phpVars.pluginUrl + "/uioFatPanelTemplate.html", {
+            type: "GET",
+            success: function (data, textStatus, jqXHR) {
+                $("body").prepend(data);
 
-        fluid.pageEnhancer({
-            tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
+                fluid.pageEnhancer({
+                    tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
+                });
+
+                fluid.uiOptions.fatPanel(".flc-uiOptions-fatPanel", {
+                    prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/"
+                });
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+            }
         });
-    
-        fluid.uiOptions.fatPanel(".flc-uiOptions-fatPanel", {
-            prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/"      
-        });          
 
     });
 })(jQuery);
