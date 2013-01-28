@@ -8,9 +8,13 @@ Author: The Fluid Project
 Author URI: http://fluidproject.org/
 */
 
-add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_vp_js_to_header'));
+add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 
-add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_vp_js_to_header'));
+// if we want UIO
+add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_files_to_header'));
+// endif
+
+add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_plugin_js_to_header'));
 
 add_filter('media_upload_tabs', 'infusion_video_player::add_embed_tab');
@@ -52,20 +56,10 @@ class infusion_video_player {
 	/**
 	 * Add to the document header all files needed by the VideoPlayer
 	 */
-	function add_vp_js_to_header() {
+	function add_vp_files_to_header() {
 		// FSS-specific CSS files
 		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-layout.css', __FILE__), array(), null);
 		wp_enqueue_style( 'fss-text', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-text.css', __FILE__), array(), null);
-
-/*
-		// UIO-specific CSS files
-		wp_enqueue_style( 'fss-theme-bw-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-bw-uio.css', __FILE__), array(), null);
-		wp_enqueue_style( 'fss-theme-wb-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-wb-uio.css', __FILE__), array(), null);
-		wp_enqueue_style( 'fss-theme-by-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-by-uio.css', __FILE__), array(), null);
-		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-yb-uio.css', __FILE__), array(), null);
-		wp_enqueue_style( 'fss-text-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-text-uio.css', __FILE__), array(), null);
-		wp_enqueue_style( 'FatPanelUIOptions', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/FatPanelUIOptions.css', __FILE__), array(), null);
-*/
 
 		// VideoPlayer-specific CSS files
 		wp_enqueue_style( 'jqueryUiCustom', plugins_url('/lib/videoPlayer/lib/jquery-ui/css/ui-lightness/jquery-ui-1.8.14.custom.css', __FILE__), array(), null);
@@ -171,5 +165,26 @@ class infusion_video_player {
 	{
 	    return preg_replace('/\\&#038;/', '/\\&', $content);
 	}
+
+	/**
+	 * Add to the document header all files needed for UI Options
+	 */
+	function add_uio_files_to_header() {
+
+		// UIO-specific CSS files
+		wp_enqueue_style( 'fss-theme-bw-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-bw-uio.css', __FILE__), array(), null);
+		wp_enqueue_style( 'fss-theme-wb-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-wb-uio.css', __FILE__), array(), null);
+		wp_enqueue_style( 'fss-theme-by-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-by-uio.css', __FILE__), array(), null);
+		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-yb-uio.css', __FILE__), array(), null);
+		wp_enqueue_style( 'fss-text-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-text-uio.css', __FILE__), array(), null);
+		wp_enqueue_style( 'FatPanelUIOptions', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/FatPanelUIOptions.css', __FILE__), array(), null);
+
+		// UIO-specific JS files
+		wp_enqueue_script( 'infusion_uio_script', plugins_url('/infusion_uio.js', __FILE__) );
+
+		// make plugin path available to the JS script
+		wp_localize_script( 'infusion_uio_script', 'phpVars', array('pluginUrl' => __(plugins_url('', __FILE__))) );
+	}
+
 }
 ?>
