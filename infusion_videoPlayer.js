@@ -28,15 +28,6 @@ var infusion_vp = infusion_vp || {};
         preInitFunction: "infusion_vp.videoPlayerPlugin.preInit",
         finalInitFunction: "infusion_vp.videoPlayerPlugin.finalInit",
         model: {
-            languageCodes: ["en", "fr", "es"],
-            languageNames: ["English", "French", "Spanish"],
-            supportedVideoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
-            supportedVideoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
-            supportedCaptionFormats: ["text/amarajson", "text/vtt"],
-            supportedCaptionFormatNames: ["Amara", "VTT"],
-            supportedTranscriptFormats: ["text/amarajson", "JSONcc"],
-            supportedTranscriptFormatNames: ["Amara", "JSONcc"],
-
             sources: [],
             captions: [],
             transcripts: [],
@@ -110,6 +101,16 @@ var infusion_vp = infusion_vp || {};
                 listener: "infusion_vp.videoPlayerPlugin.bindDOMEvents",
                 args: ["{videoPlayerPlugin}"]
             }
+        },
+        supportedValues: {
+            languageCodes: ["en", "fr", "es"],
+            languageNames: ["English", "French", "Spanish"],
+            videoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
+            videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
+            captionFormats: ["text/amarajson", "text/vtt"],
+            captionFormatNames: ["Amara", "VTT"],
+            transcriptFormats: ["text/amarajson", "JSONcc"],
+            transcriptFormatNames: ["Amara", "JSONcc"],
         }
     });
 
@@ -119,8 +120,8 @@ var infusion_vp = infusion_vp || {};
             videoUrl: "${videoUrl}",
             videoFormat: {
                 selection: "${videoFormat}",
-                optionlist: "${supportedVideoFormats}",
-                optionnames: "${supportedVideoFormatNames}"
+                optionlist: that.options.supportedValues.videoFormats,
+                optionnames: that.options.supportedValues.videoFormatNames
             },
             expander: [{
                 type: "fluid.renderer.selection.inputs",
@@ -130,8 +131,8 @@ var infusion_vp = infusion_vp || {};
                 selectID: "captionFormatChooser",
                 tree: {
                     selection: "${captionsFormat}",
-                    optionlist: "${supportedCaptionFormats}",
-                    optionnames: "${supportedCaptionFormatNames}"
+                    optionlist: that.options.supportedValues.captionFormats,
+                    optionnames: that.options.supportedValues.captionFormatNames
                 }
             }, {
                 type: "fluid.renderer.selection.inputs",
@@ -141,8 +142,8 @@ var infusion_vp = infusion_vp || {};
                 selectID: "transcriptFormatChooser",
                 tree: {
                     selection: "${transcriptsFormat}",
-                    optionlist: "${supportedTranscriptFormats}",
-                    optionnames: "${supportedTranscriptFormatNames}"
+                    optionlist: that.options.supportedValues.transcriptFormats,
+                    optionnames: that.options.supportedValues.transcriptFormatNames
                 }
             }, {
                 type: "fluid.renderer.repeat",
@@ -177,8 +178,8 @@ var infusion_vp = infusion_vp || {};
             captionUrl: "${captionsUrl}",
             "infvpc-captionLang": {
                 selection: "${captionsLang}",
-                optionlist: "${languageCodes}",
-                optionnames: "${languageNames}"
+                optionlist: that.options.supportedValues.languageCodes,
+                optionnames: that.options.supportedValues.languageNames
             },
             captionName: {
                 selection: "${captionsName}",
@@ -188,8 +189,8 @@ var infusion_vp = infusion_vp || {};
             transcriptUrl: "${transcriptsUrl}",
             "infvpc-transcriptLang": {
                 selection: "${transcriptsLang}",
-                optionlist: "${languageCodes}",
-                optionnames: "${languageNames}"
+                optionlist: that.options.supportedValues.languageCodes,
+                optionnames: that.options.supportedValues.languageNames
             },
             transcriptName: {
                 selection: "${transcriptsName}",
