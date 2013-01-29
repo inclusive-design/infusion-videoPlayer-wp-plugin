@@ -11,6 +11,10 @@
 .infvp-transcriptFormatForm.infvp-transcriptFormJson .infvp-transcriptFormAmara {
     display: none;
 }
+.infvp-trackList-formatform.infvp-trackList-urlForm .infvp-trackList-uploadedFileForm,
+.infvp-trackList-formatform.infvp-trackList-uploadedFileForm .infvp-trackList-urlForm {
+    display: none;
+}
 
 table.infvp-captionList,
 table.infvp-transcriptList,
