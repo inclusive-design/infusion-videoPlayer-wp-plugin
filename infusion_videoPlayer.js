@@ -21,22 +21,48 @@ var infusion_vp = infusion_vp || {};
     fluid.defaults("infusion_vp.videoPlayerPlugin", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         components: {
-            testTrackList: {
+            captionList: {
                 type: "infusion_vp.videoPlayerPlugin.trackList",
-                container: ".infvpc-trackList-test",
+                container: ".infvpc-captionList-new",
                 options: {
-                    // can we really share an applier?? the form fields don't match up
-//                    applier: "{videoPlayerPlugin}.applier",
                     supportedValues: {
-                        languageCodes: ["es", "md", "kg"],
-                        languageNames: ["Spanish", "Mandarin", "Klingon"],
-                        types: ["foo", "bar"],
-                        typeLabels: ["Foo Format", "Bar Format"],
+                        languageCodes: ["en", "fr", "es"],
+                        languageNames: ["English", "French", "Spanish"],
+                        types: ["text/amarajson", "text/vtt"],
+                        typeLabels: ["Amara", "VTT"]
                     },
                     styles: {
-                        foo: "infvp-trackList-urlForm",
-                        bar: "infvp-trackList-uploadedFileForm"
+                        "text/amarajson": "infvp-trackList-urlForm",
+                        "text/vtt": "infvp-trackList-uploadedFileForm"
                     },
+                    listeners: {
+                        onDeleteRow: {
+                            listener: "infusion_vp.videoPlayerPlugin.trackList.deleteRow",
+                            args: ["{trackList}", "{arguments}.0"]
+                        }
+                    }
+                }
+            },
+            transcriptList: {
+                type: "infusion_vp.videoPlayerPlugin.trackList",
+                container: ".infvpc-transcriptList-new",
+                options: {
+                    supportedValues: {
+                        languageCodes: ["en", "fr", "es", "md"],
+                        languageNames: ["English", "French", "Spanish", "Mandarin"],
+                        types: ["text/amarajson", "JSONcc"],
+                        typeLabels: ["Amara", "JSONcc"]
+                    },
+                    styles: {
+                        "text/amarajson": "infvp-trackList-urlForm",
+                        "JSONcc": "infvp-trackList-uploadedFileForm"
+                    },
+                    listeners: {
+                        onDeleteRow: {
+                            listener: "infusion_vp.videoPlayerPlugin.trackList.deleteRow",
+                            args: ["{trackList}", "{arguments}.0"]
+                        }
+                    }
                 }
             }
         },
@@ -49,8 +75,6 @@ var infusion_vp = infusion_vp || {};
         finalInitFunction: "infusion_vp.videoPlayerPlugin.finalInit",
         model: {
             sources: [],
-            captions: [],
-            transcripts: [],
 
             // initialize some defaults
             videoFormat: "video/webm",
@@ -68,48 +92,13 @@ var infusion_vp = infusion_vp || {};
             videoFormatListRowUrl: ".infvpc-videoFormatList-url",
             videoFormatListRowFormat: ".infvpc-videoFormatList-format",
             addThisVideoFormat: ".infvpc-addThisVideoFormat",
-            "infvpc-captionLang": "#infvpc-captionLang",
-            transcriptUrl: "#infvpc-transcriptUrl",
-            transcriptName: "#infvpc-transcriptName",
-            "infvpc-transcriptLang": "#infvpc-transcriptLang",
-
-            // TODO: Really need to remove all the duplication around captions vs transcripts
-            captionUrl: "#infvpc-captionUrl",
-            captionName: "#infvpc-captionName",
-            captionListRow: ".infvpc-captionList-row",
-            captionListRowName: ".infvpc-captionList-name",
-            captionListRowLang: ".infvpc-captionList-lang",
-            captionListRowFormat: ".infvpc-captionList-format",
-            captionFormatForm: ".infvpc-captionFormatForm",
-            captionFormAmara: ".infvpc-captionFormAmara",
-            captionFormVtt: ".infvpc-captionFormVtt",
-            captionFormatChooserRow: ".infvpc-captionFormatChooserRow",
-            captionFormatChooserButton: ".infvpc-captionFormatChooser",
-            captionFormatChooserLabel: ".infvpc-captionFormatChooserLabel",
-            addThisCaption: ".infvpc-addThisCaption",
-            deleteCaption: ".infvpc-deleteCaption",
-
-            transcriptListRow: ".infvpc-transcriptList-row",
-            transcriptListRowName: ".infvpc-transcriptList-name",
-            transcriptListRowLang: ".infvpc-transcriptList-lang",
-            transcriptListRowFormat: ".infvpc-transcriptList-format",
-            transcriptFormatChooserRow: ".infvpc-transcriptFormatChooserRow",
-            transcriptFormatChooserButton: ".infvpc-transcriptFormatChooser",
-            transcriptFormatChooserLabel: ".infvpc-transcriptFormatChooserLabel",
 
             // other selectors
             deleteVideoFormat: ".infvpc-deleteVideoFormat",
-            transcriptFormatForm: ".infvpc-transcriptFormatForm",
-            transcriptFormAmara: ".infvpc-transcriptFormAmara",
-            transcriptFormVtt: ".infvpc-transcriptFormVtt",
-            addThisTranscript: ".infvpc-addThisTranscript",
-            deleteTranscript: ".infvpc-deleteTranscript",
             insertIntoPost: ".infvpc-insert"
         },
         repeatingSelectors: ["captionFormatChooserRow", "transcriptFormatChooserRow", "videoFormatListRow", "captionListRow", "transcriptListRow"],
-        selectorsToIgnore: ["deleteVideoFormat", "captionFormatForm", "transcriptFormatForm",
-                            "addThisCaption", "deleteCaption", "addThisTranscript", "addThisVideoFormat", "deleteTranscript",
-                            "insertIntoPost"],
+        selectorsToIgnore: ["infvpc-captionList-new", "deleteVideoFormat", "addThisVideoFormat", "insertIntoPost"],
         produceTree: "infusion_vp.videoPlayerPlugin.produceTree",
         styles: {
             captionForm: {
@@ -131,11 +120,7 @@ var infusion_vp = infusion_vp || {};
             languageCodes: ["en", "fr", "es"],
             languageNames: ["English", "French", "Spanish"],
             videoFormats: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
-            videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
-            captionFormats: ["text/amarajson", "text/vtt"],
-            captionFormatNames: ["Amara", "VTT"],
-            transcriptFormats: ["text/amarajson", "JSONcc"],
-            transcriptFormatNames: ["Amara", "JSONcc"],
+            videoFormatNames: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"]
         }
     });
 
@@ -148,29 +133,8 @@ var infusion_vp = infusion_vp || {};
                 optionlist: that.options.supportedValues.videoFormats,
                 optionnames: that.options.supportedValues.videoFormatNames
             },
-            expander: [{
-                type: "fluid.renderer.selection.inputs",
-                rowID: "captionFormatChooserRow",
-                labelID: "captionFormatChooserLabel",
-                inputID: "captionFormatChooserButton",
-                selectID: "captionFormatChooser",
-                tree: {
-                    selection: "${captionsFormat}",
-                    optionlist: that.options.supportedValues.captionFormats,
-                    optionnames: that.options.supportedValues.captionFormatNames
-                }
-            }, {
-                type: "fluid.renderer.selection.inputs",
-                rowID: "transcriptFormatChooserRow",
-                labelID: "transcriptFormatChooserLabel",
-                inputID: "transcriptFormatChooserButton",
-                selectID: "transcriptFormatChooser",
-                tree: {
-                    selection: "${transcriptsFormat}",
-                    optionlist: that.options.supportedValues.transcriptFormats,
-                    optionnames: that.options.supportedValues.transcriptFormatNames
-                }
-            }, {
+            expander: [
+            {
                 type: "fluid.renderer.repeat",
                 repeatID: "videoFormatListRow",
                 controlledBy: "sources",
@@ -179,71 +143,16 @@ var infusion_vp = infusion_vp || {};
                     videoFormatListRowUrl: "${{videoFormat}.src}",
                     videoFormatListRowFormat: "${{videoFormat}.format}"
                 }
-            }, {
-                type: "fluid.renderer.repeat",
-                repeatID: "captionListRow",
-                controlledBy: "captions",
-                pathAs: "caption",
-                tree: {
-                    captionListRowName: "${{caption}.src}",
-                    captionListRowLang: "${{caption}.lang}",
-                    captionListRowFormat: "${{caption}.format}"
-                }
-            }, {
-                type: "fluid.renderer.repeat",
-                repeatID: "transcriptListRow",
-                controlledBy: "transcripts",
-                pathAs: "transcript",
-                tree: {
-                    transcriptListRowName: "${{transcript}.src}",
-                    transcriptListRowLang: "${{transcript}.lang}",
-                    transcriptListRowFormat: "${{transcript}.format}"
-                }
-            }],
-            captionUrl: "${captionsUrl}",
-            "infvpc-captionLang": {
-                selection: "${captionsLang}",
-                optionlist: that.options.supportedValues.languageCodes,
-                optionnames: that.options.supportedValues.languageNames
-            },
-            captionName: {
-                selection: "${captionsName}",
-                optionlist: "${captionFileUrls}",
-                optionnames: "${captionFileNames}"
-            },
-            transcriptUrl: "${transcriptsUrl}",
-            "infvpc-transcriptLang": {
-                selection: "${transcriptsLang}",
-                optionlist: that.options.supportedValues.languageCodes,
-                optionnames: that.options.supportedValues.languageNames
-            },
-            transcriptName: {
-                selection: "${transcriptsName}",
-                optionlist: "${transcriptFileUrls}",
-                optionnames: "${transcriptFileNames}"
             }
+            ]
         };
         return tree;
-    };
-
-    infusion_vp.videoPlayerPlugin.bindDeleteButtons = function (that) {
-        fluid.each(that.locate("captionListRow"), function (row, index) {
-            var delButton = that.locate("deleteCaption", row);
-            var rowUrl = that.locate("captionListRowName", row).text();
-            delButton.attr("value", index);
-            delButton.click(function () {
-                var newList = fluid.copy(that.model.captions);
-                newList.splice(delButton.attr("value"), 1);
-                that.applier.requestChange("captions", newList);
-                that.refreshView();
-                infusion_vp.videoPlayerPlugin.bindDeleteButtons(that);
-            });
-        });
     };
 
     infusion_vp.videoPlayerPlugin.addItemToTrackList = function (that, trackType, modelPathsToReset) {
         var trackList = fluid.copy(that.model[trackType]);
         trackList.push({
+            index: trackList.length,
             lang: that.model[trackType + "Lang"],
             langLabel: $("option:selected", that.locate("infvpc-captionLang")).text().trim(),
             format: that.model[trackType + "Format"],
@@ -258,9 +167,6 @@ var infusion_vp = infusion_vp || {};
 
         // redraw the interface
         that.refreshView();
-
-        // re-bind the delete buttons
-        infusion_vp.videoPlayerPlugin.bindDeleteButtons(that);
     };
 
     infusion_vp.videoPlayerPlugin.bindDOMEvents = function (that) {
@@ -282,24 +188,6 @@ var infusion_vp = infusion_vp || {};
 
             // redraw the interface
             that.refreshView();
-        });
-
-        // TODO: Need a better way to deal with default formats and languages
-        that.locate("addThisCaption").click(function () {
-            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "captions", {
-                "captionsLang": "en",
-                "captionsFormat": "text/amarajson",
-                "captionsUrl": null,
-                "captionsName": null
-            });
-        });
-        that.locate("addThisTranscript").click(function () {
-            infusion_vp.videoPlayerPlugin.addItemToTrackList(that, "transcripts", {
-                "transcriptsLang": "en",
-                "transcriptsFormat": "text/amarajson",
-                "transcriptsUrl": null,
-                "transcriptsName": null
-            });
         });
 
         that.applier.guards.addListener("sources", infusion_vp.videoPlayerPlugin.validateUrl);
@@ -351,11 +239,13 @@ var infusion_vp = infusion_vp || {};
     };
 
     infusion_vp.videoPlayerPlugin.insertVideoPlayer = function (that) {
+/*
         if (that.model.sources.length === 0) {
             // need to fire something that will trigger a message
             console.log("You must provide at least one video URL.");
             return;
         }
+*/
 
         var opts = {
             videoTitle: that.model.videoTitle,
@@ -379,7 +269,7 @@ var infusion_vp = infusion_vp || {};
                 type: entry.format
             };
         });
-        fluid.each(that.model.captions, function (entry, index) {
+        fluid.each(that.captionList.model.tracks, function (entry, index) {
             opts.video.captions[index] = {
                 src: entry.src,
                 type: entry.format,
@@ -387,7 +277,7 @@ var infusion_vp = infusion_vp || {};
                 label: entry.langLabel
             };
         });
-        fluid.each(that.model.transcripts, function (entry, index) {
+        fluid.each(that.transcriptList.model.tracks, function (entry, index) {
             opts.video.transcripts[index] = {
                 src: entry.src,
                 type: entry.format,
@@ -423,6 +313,10 @@ var infusion_vp = infusion_vp || {};
             label: "", // ??
         },
 
+        events: {
+            onDeleteRow: null,
+        },
+        
         listeners: {
             afterRender: {
                 listener: "infusion_vp.videoPlayerPlugin.trackList.bindDOMEvents",
@@ -448,26 +342,16 @@ var infusion_vp = infusion_vp || {};
             formatForm: ".infvpc-trackList-formatform",
 
             // track specifics
-            srcInputUrl: "#infvpc-trackList-srcInputUrl",
-            srcInputFile: "#infvpc-trackList-srcInputFile",
-            srcLangInput: "#srcLangInput",  // TODO: This is a problem - not unique on a page! how to make unique? Renderer assigns...
+            srcInputUrl: ".infvpc-trackList-srcInputUrl",
+            srcInputFile: ".infvpc-trackList-srcInputFile",
+            srcLangInput: ".infvpc-trackList-srcLangInput",
 
             // buttons
-            addTrack: ".infvpc-trackList-addTrack",
-
-            // ????
-/*
-            urlForm: ".infvpc-trackList-urlForm",
-            uploadedFileForm: ".infvpc-trackList-uploadedFileForm",
-            src: ".infvp-trackList-src",
-            type: ".infvp-trackList-type",
-            srclang: ".infvp-trackList-lang",
-            label: ".infvp-trackList-lang",
-*/
-dummy: "foo"
+            addTrack: ".infvpc-trackList-addTrack"
+,dummy: "foo"
         },
         repeatingSelectors: ["formatRow", "trackRow"],
-        selectorsToIgnore: ["trackList", "formatForm", "addTrack", "deleteTrack", "dummy"],
+        selectorsToIgnore: ["trackList", "formatForm", "addTrack", "dummy"],
 
         preInitFunction:  "infusion_vp.videoPlayerPlugin.trackList.preInit",
         // finalInitFunction:  "infusion_vp.videoPlayerPlugin.trackList.finalInit",
@@ -525,6 +409,16 @@ dummy: "foo"
                 label: "this is the label" // what the heck is this??
             });
         });
+
+        that.locate("trackDelete").click(function (evt) {
+            var row = $(evt.target).parents(that.options.selectors.trackRow);
+            var rowUrl = that.locate("trackSrc", row).text();
+
+
+            // TODO: Maybe the right solution is to render the delete button and
+            // attach a handler as part of the rendering process?
+
+        });
     };
 
     infusion_vp.videoPlayerPlugin.trackList.produceTree = function (that) {
@@ -557,6 +451,18 @@ dummy: "foo"
                 controlledBy: "tracks",
                 pathAs: "track",
                 tree: {
+                    trackDelete: {
+                        decorators: [{
+                             type: "fluid",
+                             func: "infusion_vp.videoPlayerPlugin.trackList.deleteButton",
+                             options: {
+                                 idPrefix:  "${{track}}",
+                                 listeners: {
+                                     onDeleteRow: that.events.onDeleteRow.fire
+                                 }
+                             }
+                         }]
+                    },
                     trackSrc: "${{track}.src}",
                     trackLang: "${{track}.langLabel}",
                     trackFormat: "${{track}.format}"
@@ -564,6 +470,32 @@ dummy: "foo"
             }]
         };
         return tree;
+    };
+
+    infusion_vp.videoPlayerPlugin.trackList.deleteRow = function (that, rowIndex) {
+        var newList = fluid.copy(that.model.tracks);
+        newList.splice(rowIndex, 1);
+        that.applier.requestChange("tracks", newList);
+        that.refreshView();
+    };
+
+    /********************************************
+     * Decorator for delete button
+     * Adds index information and click handling
+     ********************************************/
+    fluid.defaults("infusion_vp.videoPlayerPlugin.trackList.deleteButton", {
+        gradeNames: ["fluid.viewComponent", "autoInit"],
+        finalInitFunction: "infusion_vp.videoPlayerPlugin.trackList.deleteButton.finalInit",
+        events: {
+            onDeleteRow: null
+        }
+    });
+
+    infusion_vp.videoPlayerPlugin.trackList.deleteButton.finalInit = function (that) {
+        that.container.attr("value", that.options.idPrefix.substring(that.options.idPrefix.length-1));
+        that.container.click(function (evt) {
+            that.events.onDeleteRow.fire($(evt.target).attr("value"));
+        });
     };
 
 })(jQuery);
