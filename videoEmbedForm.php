@@ -22,8 +22,8 @@
     <button class="infvpc-addThisVideoFormat">Add this video format</button>
 
     <h2>Captions</h2>
-	<div class="infvpc-captionList-new">
-		<table class="infvpc-trackList infvp-transcriptList" border="0">
+	<div class="infvpc-captionList">
+		<table class="infvpc-trackList infvp-captionList" border="0">
 			<tr class="infvpc-trackList-trackRow">
 				<td><button type="button" class="infvpc-trackList-trackDelete">del</button></td>
 				<td class="infvpc-trackList-trackSrc">name</td>
@@ -58,7 +58,7 @@
 	</div>
 
     <h2>Transcripts</h2>
-	<div class="infvpc-transcriptList-new">
+	<div class="infvpc-transcriptList">
 		<table class="infvpc-trackList infvp-transcriptList" border="0">
 			<tr class="infvpc-trackList-trackRow">
 				<td><button type="button" class="infvpc-trackList-trackDelete">del</button></td>

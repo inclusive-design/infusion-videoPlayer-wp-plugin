@@ -91,6 +91,7 @@ class infusion_video_player {
 	 * Add to the document header files needed by the plugin
 	 */
 	function add_plugin_js_to_header() { //loads plugin-related javascripts
+	    wp_enqueue_script( 'infusion_video_player_script2', plugins_url('/infusion_videoPlayer_trackList.js', __FILE__) );
 	    wp_enqueue_script( 'infusion_video_player_script', plugins_url('/infusion_videoPlayer.js', __FILE__) );
 
 		// make some PHP data available to the JS script
@@ -102,6 +103,7 @@ class infusion_video_player {
 		$php_vars['transcriptFileNames'] = infusion_video_player::$transcript_file_names;
 		$php_vars['transcriptFileUrls'] = infusion_video_player::$transcript_file_urls;
 		wp_localize_script( 'infusion_video_player_script', 'phpVars', $php_vars );
+		wp_localize_script( 'infusion_video_player_script2', 'phpVars', $php_vars );
 	}
 
 	/**
