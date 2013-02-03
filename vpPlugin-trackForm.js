@@ -72,7 +72,8 @@ var fluid = fluid || {};
         },
         styles: {
             amara: "vpp-trackForm-urlSrc",
-            nonAmara: "vpp-trackForm-fileSrc"
+            nonAmara: "vpp-trackForm-fileSrc",
+            invalid: "vpp-trackForm-invalid"
         },
         repeatingSelectors: ["typeRow"],
         selectorsToIgnore: ["add", "source", "type", "cancel", "done"],
@@ -106,7 +107,10 @@ var fluid = fluid || {};
             },
             addFileSubtree: "fluid.vpPlugin.trackForm.addFileSubtree",
             addLangSubtree: "fluid.vpPlugin.trackForm.addLangSubtree",
-            validateNewTrackList: "fluid.vpPlugin.trackForm.validateNewTrackList",
+            validateNewTrackList: {
+                funcName: "fluid.vpPlugin.trackForm.validateNewTrackList",
+                args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
+            },
             injectPrompt: {
                 funcName: "fluid.vpPlugin.trackForm.injectPrompt",
                 args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
@@ -250,20 +254,28 @@ var fluid = fluid || {};
      * Form validation. These functions should fire events an event, and the event should
      * trigger a class change on the relevant fields to add an 'invalid' indication.
      */
-    fluid.vpPlugin.trackForm.validateNewTrackList = function (model, changeRequest) {
+    fluid.vpPlugin.trackForm.validateNewTrackList = function (that, model, changeRequest) {
         var newList = changeRequest.value;
         if (newList.length === 0) {
             return true;
         }
         var newEntry = newList[newList.length - 1];
+        var valid = true;
         if (!newEntry.src || newEntry.src === "none") {
-            console.log("sorry, you need to specify an valid entry for this");
-            return false;
+            that.locate("url").addClass(that.options.styles.invalid);
+            that.locate("file").addClass(that.options.styles.invalid);
+            valid = false;
+        } else {
+            that.locate("url").removeClass(that.options.styles.invalid);
+            that.locate("file").removeClass(that.options.styles.invalid);
         }
         if (newEntry.srclang === "") {
-            console.log("sorry, you need to choose a language");
-            return false;
+            that.locate("lang").addClass(that.options.styles.invalid);
+            valid = false;
+        } else {
+            that.locate("lang").removeClass(that.options.styles.invalid);
         }
+        return valid;
     };
 
 })(jQuery);

@@ -18,3 +18,7 @@
 .vpp-trackForm-source.vpp-trackForm-fileSrc .vpp-trackForm-urlSrc {
     display: none;
 }
+input[type="text"].vpp-trackForm-invalid,
+select.vpp-trackForm-invalid {
+    border: 2px solid red;
+}
