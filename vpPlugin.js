@@ -69,8 +69,6 @@ var fluid = fluid || {};
                         urlTitle: "Add Video"
                     },
                     supportedValues: {
-                        languageCodes: ["md", "kg"],
-                        languageNames: ["Mandarin", "Klingon"],
                         types: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
                         typeLabels: ["WEBM", "MP4", "OGG", "OGV", "YouTube"]
                     },
@@ -104,8 +102,6 @@ var fluid = fluid || {};
                         fileLabel: "Choose Caption:"
                     },
                     supportedValues: {
-                        languageCodes: ["md", "kg"],
-                        languageNames: ["Mandarin", "Klingon"],
                         types: ["text/amarajson", "text/vtt"],
                         typeLabels: ["Amara", "VTT"]
                     },

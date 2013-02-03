@@ -90,8 +90,8 @@ var fluid = fluid || {};
         },
         modelPath: "mediaType",
         supportedValues: {
-            languageCodes: ["en", "fr", "es"],
-            languageNames: ["English", "French", "Spanish"],
+            languageCodes: ["ar", "en", "fr", "zh", "pt", "ru", "es"],
+            languageNames: ["Arabic", "English", "French", "Chinese", "Portuguese", "Russian", "Spanish"],
             types: ["text/amarajson", "JSONcc"],
             typeLabels: ["Amara", "JSON"]
         },

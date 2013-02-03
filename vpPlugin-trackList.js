@@ -49,7 +49,6 @@ var fluid = fluid || {};
             type: ".vppc-trackList-trackType"
         },
         repeatingSelectors: ["row"],
-        selectorsToIgnore: [],
         produceTree: "fluid.vpPlugin.trackList.produceTree",
         rendererOptions: {
 //            debugMode: true,
