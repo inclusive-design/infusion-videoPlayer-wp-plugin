@@ -24,11 +24,6 @@ var fluid = fluid || {};
     fluid.defaults("fluid.vpPlugin", {
         gradeNames: ["fluid.viewComponent", "autoInit"],
         finalInitFunction: "fluid.vpPlugin.finalInit",
-        selectors: {
-            title: ".vppc-videoTitle",
-            cancel: ".vppc-cancel",
-            insert: ".vppc-insert"
-        },
         model: {
             sources: {
                 tracks: [],
@@ -49,6 +44,11 @@ var fluid = fluid || {};
                 file: "",
                 lang: ""
             }
+        },
+        selectors: {
+            title: ".vppc-videoTitle",
+            cancel: ".vppc-cancel",
+            insert: ".vppc-insert"
         },
         invokers: {
             insertIntoPost: {

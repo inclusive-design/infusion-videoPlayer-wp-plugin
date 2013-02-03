@@ -44,18 +44,6 @@ var fluid = fluid || {};
                 args: "{trackForm}"
             }
         },
-        strings: {
-            urlTitle: "Add Amara File",
-            fileTitle: "Add File",
-            fileLabel: "Choose File:",
-            langLabel: "Language:",
-            pleaseSelect: "Please select...",
-            none: "No files yet"
-        },
-        styles: {
-            amara: "vpp-trackForm-urlSrc",
-            nonAmara: "vpp-trackForm-fileSrc"
-        },
         selectors: {
             add: ".vppc-trackForm-add",
             source: ".vppc-trackForm-source",
@@ -73,6 +61,18 @@ var fluid = fluid || {};
             lang: ".vppc-trackForm-lang",
             cancel: ".vppc-trackForm-cancel",
             done: ".vppc-trackForm-done"
+        },
+        strings: {
+            urlTitle: "Add Amara File",
+            fileTitle: "Add File",
+            fileLabel: "Choose File:",
+            langLabel: "Language:",
+            pleaseSelect: "Please select...",
+            none: "No files yet"
+        },
+        styles: {
+            amara: "vpp-trackForm-urlSrc",
+            nonAmara: "vpp-trackForm-fileSrc"
         },
         repeatingSelectors: ["typeRow"],
         selectorsToIgnore: ["add", "source", "type", "cancel", "done"],
