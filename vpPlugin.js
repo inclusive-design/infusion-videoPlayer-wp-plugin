@@ -25,6 +25,7 @@ var fluid = fluid || {};
         gradeNames: ["fluid.viewComponent", "autoInit"],
         finalInitFunction: "fluid.vpPlugin.finalInit",
         selectors: {
+            title: ".vppc-videoTitle",
             cancel: ".vppc-cancel",
             insert: ".vppc-insert"
         },
@@ -64,7 +65,8 @@ var fluid = fluid || {};
                     applier:  "{vpPlugin}.applier",
                     modelPath: "sources",
                     strings: {
-                        title: "Video Sources"
+                        title: "Video Sources",
+                        urlTitle: "Add Video"
                     },
                     supportedValues: {
                         languageCodes: ["md", "kg"],
@@ -98,6 +100,7 @@ var fluid = fluid || {};
                     modelPath: "captions",
                     strings: {
                         title: "Captions",
+                        fileTitle: "Add WebVTT Caption",
                         fileLabel: "Choose Caption:"
                     },
                     supportedValues: {
@@ -130,6 +133,7 @@ var fluid = fluid || {};
                     modelPath: "transcripts",
                     strings: {
                         title: "Transcripts",
+                        fileTitle: "Add JSON-CC Transcript",
                         fileLabel: "Choose Transcript:"
                     }
                 }
@@ -157,7 +161,7 @@ var fluid = fluid || {};
     
     fluid.vpPlugin.insertIntoPost = function (that) {
         var opts = {
-            videoTitle: that.model.videoTitle,
+            videoTitle: that.locate("title").val(),
             video: {
                 sources: [],
                 captions: [],

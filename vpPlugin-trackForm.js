@@ -45,6 +45,8 @@ var fluid = fluid || {};
             }
         },
         strings: {
+            urlTitle: "Add Amara File",
+            fileTitle: "Add File",
             fileLabel: "Choose File:",
             langLabel: "Language:",
             pleaseSelect: "Please select...",
@@ -62,7 +64,9 @@ var fluid = fluid || {};
             typeRow: ".vppc-trackForm-typeRow",
             typeInput: ".vppc-trackForm-typeInput   ",
             typeLabel: ".vppc-trackForm-typeLabel",
+            urlTitle: ".vppc-trackForm-urlSrcTitle",
             url: ".vppc-trackForm-url",
+            fileTitle: ".vppc-trackForm-fileSrcTitle",
             fileLabel: ".vppc-trackForm-fileLabel",
             file: ".vppc-trackForm-filename",
             langLabel: ".vppc-trackForm-langLabel",
@@ -197,6 +201,7 @@ var fluid = fluid || {};
                     optionnames: that.options.supportedValues.typeLabels
                 }
             }],
+            urlTitle: that.options.strings.urlTitle,
             url: "${" + that.options.modelPath + ".src}"
         };
 
@@ -223,6 +228,7 @@ var fluid = fluid || {};
     };
 
     fluid.vpPlugin.trackForm.addFileSubtree = function (that, tree) {
+        tree.fileTitle = that.options.strings.fileTitle;
         tree.fileLabel = that.options.strings.fileLabel;
         tree.file = {
             selection: "${" + that.options.modelPath + ".src}",

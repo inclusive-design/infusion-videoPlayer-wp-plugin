@@ -1,5 +1,8 @@
 <div class="embed-video-player-form">
 	
+	<label for="vppc-videoTitle">Title:</label>
+	<input type="text" id="vppc-videoTitle" class="vppc-videoTitle" />
+
 	<div class="vppc-videoForm">video form goes here</div>
 	<div class="vppc-videoList">video list goes here</div>
 
