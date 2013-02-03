@@ -1,0 +1,20 @@
+.vpp-trackForm-header {
+    padding-top: 2em;
+}
+.vpp-trackForm-title {
+    font-weight: bold;
+}
+.vpp-trackForm-type {
+    border: 1px solid gray;
+    display: inline-block
+}
+.vpp-trackList {
+    border: 1px solid gray;
+}
+.vpp-trackForm-source {
+    border: 1px solid gray;
+}
+.vpp-trackForm-source.vpp-trackForm-urlSrc .vpp-trackForm-fileSrc,
+.vpp-trackForm-source.vpp-trackForm-fileSrc .vpp-trackForm-urlSrc {
+    display: none;
+}
