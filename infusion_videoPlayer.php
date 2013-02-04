@@ -8,11 +8,14 @@ Author: The Fluid Project
 Author URI: http://fluidproject.org/
 */
 
+include_once dirname( __FILE__ ) .'/infusion_videoPlayer_admin.php';
+
 add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 
-// if we want UIO
-add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_files_to_header'));
-// endif
+$vpPlugin_options = get_option('infusion_vp_options');
+if ($vpPlugin_options['add_uio'] == 'addUIO') {
+	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_files_to_header'));
+}
 
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_plugin_js_to_header'));
@@ -91,22 +94,26 @@ class infusion_video_player {
 	 * Add to the document header files needed by the plugin
 	 */
 	function add_plugin_js_to_header() { //loads plugin-related javascripts
-	    wp_enqueue_script( 'infusion_video_player_script1', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
-	    wp_enqueue_script( 'infusion_video_player_script2', plugins_url('/vpPlugin-trackList.js', __FILE__) );
-	    wp_enqueue_script( 'infusion_video_player_script3', plugins_url('/vpPlugin.js', __FILE__) );
+	    wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
+	    wp_enqueue_script( 'vpPlugin_trackList', plugins_url('/vpPlugin-trackList.js', __FILE__) );
+	    wp_enqueue_script( 'vpPlugin_mainScript', plugins_url('/vpPlugin.js', __FILE__) );
 
-		// make some PHP data available to the JS script
+	    $options = get_option('infusion_vp_options');
+
+		// make some information available to the Javascript files
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
-		$uploadDir = wp_upload_dir();
-		$php_vars['uploadsUrl'] = $uploadDir['url'];
+		$php_vars['addUIOsetting'] = $options['add_uio'];
 		$php_vars['captions']['fileNames'] = infusion_video_player::$caption_file_names;
 		$php_vars['captions']['fileUrls'] = infusion_video_player::$caption_file_urls;
 		$php_vars['transcripts']['fileNames'] = infusion_video_player::$transcript_file_names;
 		$php_vars['transcripts']['fileUrls'] = infusion_video_player::$transcript_file_urls;
 
-		wp_localize_script( 'infusion_video_player_script1', 'phpVars', $php_vars );
-		wp_localize_script( 'infusion_video_player_script2', 'phpVars', $php_vars );
-		wp_localize_script( 'infusion_video_player_script3', 'phpVars', $php_vars );
+		wp_localize_script( 'vpPlugin_mainScript', 'phpVars', $php_vars );
+		wp_localize_script( 'vpPlugin_trackList', 'phpVars', $php_vars );
+		wp_localize_script( 'vpPlugin_trackForm', 'phpVars', $php_vars );
+		if ($options['add_uio'] == 'addUIO') {
+			wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
+		}
 	}
 
 	/**

@@ -156,7 +156,7 @@ var fluid = fluid || {};
     };
     
     fluid.vpPlugin.insertIntoPost = function (that) {
-        var opts = {
+        var vidPlayerOpts = {
             videoTitle: that.locate("title").val(),
             video: {
                 sources: [],
@@ -173,13 +173,13 @@ var fluid = fluid || {};
             }
         };
         fluid.each(that.model.sources.tracks, function (entry, index) {
-            opts.video.sources[index] = {
+            vidPlayerOpts.video.sources[index] = {
                 src: entry.src,
                 type: entry.type
             };
         });
         fluid.each(that.model.captions.tracks, function (entry, index) {
-            opts.video.captions[index] = {
+            vidPlayerOpts.video.captions[index] = {
                 src: entry.src,
                 type: entry.type,
                 srclang: entry.srclang,
@@ -187,7 +187,7 @@ var fluid = fluid || {};
             };
         });
         fluid.each(that.model.transcripts.tracks, function (entry, index) {
-            opts.video.transcripts[index] = {
+            vidPlayerOpts.video.transcripts[index] = {
                 src: entry.src,
                 type: entry.type,
                 srclang: entry.srclang,
@@ -196,10 +196,37 @@ var fluid = fluid || {};
         });
 
         var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
-        htmlString += "var opts = " + fluid.prettyPrintJSON(opts) + ";\n";
-        htmlString += "fluid.videoPlayer('.infvpc-video-player', opts);";
-        htmlString += "</script>";
 
+        if (phpVars.addUIOsetting === "noUIO") {
+            htmlString += "var vidPlayerOpts = " + fluid.prettyPrintJSON(vidPlayerOpts) + ";\n";
+            htmlString += "fluid.videoPlayer('.infvpc-video-player', vidPlayerOpts);\n";
+        } else {
+            var videoOptions = {
+                container: ".infvpc-video-player",
+                options: vidPlayerOpts
+            };
+            var fatPanelOpts = {
+                prefix: "../lib/infusion/components/uiOptions/html/",
+                components: {
+                    relay: {
+                        type: "fluid.videoPlayer.relay"
+                    }
+                },
+                templateLoader: {
+                    options: {
+                        templates: {
+                            mediaControls: phpVars.pluginUrl + "/lib/videoPlayer/html/UIOptionsTemplate-media.html.html"
+                        }
+                    }
+                }
+            };
+            htmlString += "var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel('.flc-uiOptions', "
+                       + fluid.prettyPrintJSON(fatPanelOpts) + ");\n";
+            htmlString += "var videoOptions = " + fluid.prettyPrintJSON(videoOptions) + ";\n";
+            htmlString += "fluid.videoPlayer.makeEnhancedInstances(videoOptions, uiOptions.relay);\n";
+        }
+
+        htmlString += "</script>";
         parent.send_to_editor(htmlString);
     };
 
