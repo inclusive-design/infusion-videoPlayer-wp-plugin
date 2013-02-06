@@ -195,35 +195,21 @@ var fluid = fluid || {};
             };
         });
 
-        var htmlString = "<div class='infvpc-video-player'></div>\n<script>";
+        var htmlString = "<div class='infvpc-video-player'></div>\n<script>\nfluid.registerNamespace('fluid.vpPlugin');";
 
         if (phpVars.addUIOsetting === "noUIO") {
             htmlString += "var vidPlayerOpts = " + fluid.prettyPrintJSON(vidPlayerOpts) + ";\n";
             htmlString += "fluid.videoPlayer('.infvpc-video-player', vidPlayerOpts);\n";
         } else {
+            htmlString += "if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }\n";
             var videoOptions = {
                 container: ".infvpc-video-player",
                 options: vidPlayerOpts
             };
-            var fatPanelOpts = {
-                prefix: "../lib/infusion/components/uiOptions/html/",
-                components: {
-                    relay: {
-                        type: "fluid.videoPlayer.relay"
-                    }
-                },
-                templateLoader: {
-                    options: {
-                        templates: {
-                            mediaControls: phpVars.pluginUrl + "/lib/videoPlayer/html/UIOptionsTemplate-media.html.html"
-                        }
-                    }
-                }
-            };
-            htmlString += "var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel('.flc-uiOptions', "
-                       + fluid.prettyPrintJSON(fatPanelOpts) + ");\n";
             htmlString += "var videoOptions = " + fluid.prettyPrintJSON(videoOptions) + ";\n";
-            htmlString += "fluid.videoPlayer.makeEnhancedInstances(videoOptions, uiOptions.relay);\n";
+            htmlString += "fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {\n";
+            htmlString += "fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);\n";
+            htmlString += "});\n";
         }
 
         htmlString += "</script>";

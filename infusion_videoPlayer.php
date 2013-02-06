@@ -13,7 +13,11 @@ include_once dirname( __FILE__ ) .'/infusion_videoPlayer_admin.php';
 add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 
 $vpPlugin_options = get_option('infusion_vp_options');
+if ($vpPlugin_options['add_uio'] == 'useUIO') {
+	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_plugin_files_to_header'));
+}
 if ($vpPlugin_options['add_uio'] == 'addUIO') {
+	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_plugin_files_to_header'));
 	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_files_to_header'));
 }
 
@@ -190,13 +194,18 @@ class infusion_video_player {
 		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-theme-yb-uio.css', __FILE__), array(), null);
 		wp_enqueue_style( 'fss-text-uio', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/fss/fss-text-uio.css', __FILE__), array(), null);
 		wp_enqueue_style( 'FatPanelUIOptions', plugins_url('/lib/videoPlayer/lib/infusion/components/uiOptions/css/FatPanelUIOptions.css', __FILE__), array(), null);
+	}
 
-		// UIO-specific JS files
+	/**
+	 * Add to the document header all files needed for UI Options
+	 */
+	function add_uio_plugin_files_to_header() {
+
+		// Plugin+UIO-specific JS files
 		wp_enqueue_script( 'infusion_uio_script', plugins_url('/infusion_uio.js', __FILE__) );
 
 		// make plugin path available to the JS script
 		wp_localize_script( 'infusion_uio_script', 'phpVars', array('pluginUrl' => __(plugins_url('', __FILE__))) );
 	}
-
 }
 ?>

@@ -18,23 +18,57 @@ var infusion_vp = infusion_vp || {};
 
 (function ($) {
 
+    fluid.registerNamespace("fluid.vpPlugin");
+
+    fluid.defaults("fluid.vpPlugin.UIOAnnouncer", {
+        gradeNames: ["fluid.eventedComponent", "autoInit"],
+        events: {
+            UIOReady: null
+        }
+    });
+
+    if (!fluid.staticEnvironment.UIOAnnouncer) {
+        fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()});
+    }
+
     $("document").ready(function () {
-        $.ajax(phpVars.pluginUrl + "/uioFatPanelTemplate.html", {
-            type: "GET",
-            success: function (data, textStatus, jqXHR) {
-                $("body").prepend(data);
+        fluid.vpPlugin.initUIO = function () {
+            fluid.pageEnhancer({
+                tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
+            });
 
-                fluid.pageEnhancer({
-                    tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
-                });
+            var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", {
+                prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/",
+                components: {
+                    relay: {
+                        type: "fluid.videoPlayer.relay"
+                    }
+                },
+                templateLoader: {
+                    options: {
+                        templates: {
+                            mediaControls: phpVars.pluginUrl + "/lib/videoPlayer/html/UIOptionsTemplate-media.html"
+                        }
+                    }
+                }
+            });
+            fluid.merge(null, fluid.staticEnvironment, {uiOpionsInstance: uiOptions});
+            fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire();
+        };
 
-                fluid.uiOptions.fatPanel(".flc-uiOptions-fatPanel", {
-                    prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/"
-                });
-            },
-            error: function (jqXHR, textStatus, errorThrown) {
-            }
-        });
-
+        if ($(".flc-uiOptions-fatPanel").length > 0) {
+            // document already has UIO markup in it, we don't need to load a template
+            fluid.vpPlugin.initUIO();
+        } else {
+            $.ajax(phpVars.pluginUrl + "/uioFatPanelTemplate.html", {
+                type: "GET",
+                success: function (data, textStatus, jqXHR) {
+                    $("body").prepend(data);
+                    fluid.vpPlugin.initUIO();
+                },
+                error: function (jqXHR, textStatus, errorThrown) {
+                }
+            });
+        }
     });
 })(jQuery);

@@ -35,9 +35,9 @@ class infusion_video_player_admin {
 			</label>
 		</div>
 		<div>
-		<label title="I already have UI Options, please configure the Video Player to work with it.">
+		<label title="I'm using the FSS base theme, please configure the Video Player to work with it's UI Options.">
 			<input type="radio" value="useUIO" name="infusion_vp_options[add_uio]" <?php if ($options['add_uio'] == 'useUIO') { echo "checked='checked'"; } ?>>
-			<span>I already have UI Options, please configure the Video Player to work with it.</span>
+			<span>I'm using the FSS base theme, please configure the Video Player to work with it's UI Options.</span>
 		</label> 
 		</div>
 		<div>
