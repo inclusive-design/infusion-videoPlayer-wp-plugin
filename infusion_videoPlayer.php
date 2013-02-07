@@ -31,6 +31,8 @@ add_action('media_upload_vp_embed_video', array('infusion_video_player', 'embed_
 add_filter('upload_mimes', array('infusion_video_player', 'custom_upload_mimes'));
 add_filter('the_content', array('infusion_video_player', 'restore_ampersands'));
 
+add_shortcode( 'videoPlayer', array('infusion_video_player', 'process_shortcode') );
+
 infusion_video_player::get_caption_transcript_files();
 
 class infusion_video_player {
@@ -211,5 +213,111 @@ class infusion_video_player {
 		$php_vars['hideText'] = $options['hide_text'];
 		wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
 	}
+
+	// [videoPlayer src="foo-value"]
+	function process_shortcode( $atts ) {
+		extract( shortcode_atts( array(
+			// these are the defaults, if nothing is provded in the shorcode
+			'title' => '',
+			'sourcessrc' => '',
+			'sourcestype' => '',
+			'captionssrc' => '',
+			'captionstype' => '',
+			'captionssrclang' => '',
+			'captionslanglabel' => 'default',
+			'transcriptssrc' => '',
+			'transcriptstype' => '',
+			'transcriptssrclang' => '',
+			'transcriptslanglabel' => '',
+			'uiosetting' => ''
+		), $atts ) );
+
+		$result = '<div class="infvpc-video-player"></div>
+		<script>
+		fluid.registerNamespace("fluid.vpPlugin");
+		';
+		$result .= 'var vidPlayerOpts = {
+		video: {
+			';
+
+		// add the sources array to the opts
+		$sourcessrc = explode(',', $sourcessrc);
+		$sourcestype = explode(',', $sourcestype);
+		$srccount = count($sourcessrc);
+		$result .= '    sources: [';
+		for ($i = 0; $i < $srccount - 1; $i++) {
+			$result .= '{src: "' . $sourcessrc[$i] . '", type: "' . $sourcestype[$i] . '"},';
+		}
+		$result .= '{src: "' . $sourcessrc[$i] . '", type: "' . $sourcestype[$i] . '"}';
+		$result .= ']'; // end sources
+
+		// add the captions array to the opts, if there are any
+		$captionssrc = explode(',', $captionssrc);
+		$capcount = count($captionssrc);
+
+		if ($capcount > 0) {
+			$captionstype = explode(',', $captionstype);
+			$captionssrclang = explode(',', $captionssrclang);
+			$captionslanglabel = explode(',', $captionslanglabel);
+			$result .= ',
+			captions: [';
+			for ($i = 0; $i < $capcount - 1; $i++) {
+				$result .= '{src: "' . $captionssrc[$i] . '", type: "' . $captionstype[$i] . '", srclang: "' . $captionssrclang[$i] . '", label: "' . $captionslanglabel[$i] . '"},';
+			}
+			$result .= '{src: "' . $captionssrc[$i] . '", type: "' . $captionstype[$i] . '", srclang: "' . $captionssrclang[$i] . '", label: "' . $captionslanglabel[$i] . '"}';
+			$result .= ']'; // end captions
+		}
+
+		// add the transcripts array to the opts, if there are any
+		$transcriptssrc = explode(',', $transcriptssrc);
+		$trancount = count($transcriptssrc);
+		if ($trancount > 0) {
+			$transcriptstype = explode(',', $transcriptstype);
+			$transcriptssrclang = explode(',', $transcriptssrclang);
+			$transcriptslanglabel = explode(',', $transcriptslanglabel);
+			$result .= ',
+			transcripts: [';
+			for ($i = 0; $i < $trancount - 1; $i++) {
+				$result .= '{src: "' . $transcriptssrc[$i] . '", type: "' . $transcriptstype[$i] . '", srclang: "' . $transcriptssrclang[$i] . '", label: "' . $transcriptslanglabel[$i] . '"},';
+			}
+			$result .= '{src: "' . $transcriptssrc[$i] . '", type: "' . $transcriptstype[$i] . '", srclang: "' . $transcriptssrclang[$i] . '", label: "' . $transcriptslanglabel[$i] . '"}';
+			$result .= ']'; // end transcripts
+		}
+		$result .= '
+		}'; // end video:
+
+		// add the title, if there is one
+		if ($title) {
+			$result .= ',
+			videoTitle: "' . $title . '"';
+		}
+
+		// add the mechanical stuff
+		$result .= ',
+        templates: {
+            videoPlayer: {href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/videoPlayer_template.html"},
+            menuButton: {href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/menuButton_template.html"}
+        }';
+		$result .= '
+		};'; // end var vidPlayerOpts
+
+		$options = get_option('infusion_vp_options');
+		if ($options['add_uio'] == "noUIO") {
+			$result .= '
+			fluid.videoPlayer(".infvpc-video-player", vidPlayerOpts);';
+		} else {
+			$result .= '
+			if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }';
+			$result .= '
+			var videoOptions = {container: ".infvpc-video-player", options: vidPlayerOpts};';
+			$result .= '
+			fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {
+			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);
+			});';
+		}
+		$result .= '</script>';
+		return $result;
+	}
+
 }
 ?>

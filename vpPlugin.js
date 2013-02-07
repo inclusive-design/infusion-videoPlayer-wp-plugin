@@ -155,6 +155,28 @@ var fluid = fluid || {};
         });
     };
     
+    var convertTracksToString = function (trackArray, prefix) {
+        var togo = "";
+        var strs = {};
+        // determine which fields exist, create base strings
+        fluid.each(trackArray[0], function (val, name) {
+            strs[name] = "";
+        });
+        // construct individual
+        fluid.each(trackArray, function (entry, index) {
+            fluid.each(strs, function (val, name) {
+                strs[name] += entry[name] + ",";
+            });
+        });
+        // strip the final ',' and add to string
+        fluid.each(strs, function (val, name) {
+            strs[name] = strs[name].substring(0, strs[name].length - 1);
+            togo += fluid.stringTemplate(" %0%1='%2'", [prefix, name, strs[name]]);
+        });
+
+        return togo;
+    };
+
     fluid.vpPlugin.insertIntoPost = function (that) {
         var vidPlayerOpts = {
             videoTitle: that.locate("title").val(),
@@ -213,7 +235,21 @@ var fluid = fluid || {};
         }
 
         htmlString += "</script>";
-        parent.send_to_editor(htmlString);
+
+        var shortCodeString = "\n[videoPlayer";
+
+        var videoTitle = that.locate("title").val();
+        if (videoTitle) {
+            shortCodeString += " title='" + videoTitle + "'";
+        }
+
+        shortCodeString += convertTracksToString(that.model.sources.tracks, "sources");
+        shortCodeString += convertTracksToString(that.model.captions.tracks, "captions");
+        shortCodeString += convertTracksToString(that.model.transcripts.tracks, "transcripts");
+
+        shortCodeString += " uiosetting='" + phpVars.addUIOsetting + "']\n";
+        parent.send_to_editor(shortCodeString);
+//        parent.send_to_editor(htmlString);
     };
 
 })(jQuery);
