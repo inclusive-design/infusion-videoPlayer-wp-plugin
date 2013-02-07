@@ -37,7 +37,7 @@ var infusion_vp = infusion_vp || {};
                 tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
             });
 
-            var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", {
+            var opts = {
                 prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/",
                 components: {
                     relay: {
@@ -51,7 +51,20 @@ var infusion_vp = infusion_vp || {};
                         }
                     }
                 }
-            });
+            };
+            if (phpVars.showText) {
+              // Custom strings for slidingPanel button are specified through the plugin admin panel
+                opts.slidingPanel = {
+                    options: {
+                        strings: {
+                            showText: phpVars.showText,
+                            hideText: phpVars.hideText
+                        }
+                    }
+                };
+            }
+
+            var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", opts);
             fluid.merge(null, fluid.staticEnvironment, {uiOpionsInstance: uiOptions});
             fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire();
         };

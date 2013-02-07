@@ -204,8 +204,12 @@ class infusion_video_player {
 		// Plugin+UIO-specific JS files
 		wp_enqueue_script( 'infusion_uio_script', plugins_url('/infusion_uio.js', __FILE__) );
 
-		// make plugin path available to the JS script
-		wp_localize_script( 'infusion_uio_script', 'phpVars', array('pluginUrl' => __(plugins_url('', __FILE__))) );
+		// make plugin path and options available to the JS script
+		$options = get_option('infusion_vp_options');
+		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
+		$php_vars['showText'] = $options['show_text'];
+		$php_vars['hideText'] = $options['hide_text'];
+		wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
 	}
 }
 ?>
