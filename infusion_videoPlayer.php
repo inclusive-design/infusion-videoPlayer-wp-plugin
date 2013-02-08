@@ -214,7 +214,34 @@ class infusion_video_player {
 		wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
 	}
 
-	// [videoPlayer src="foo-value"]
+	/**
+	 * Convert the shortcode attributes specific to one track type onto the relevan VideoPlayer args
+	 */
+	function process_tracklist($name, $srcs, $types, $langs=null, $labels=null) {
+		$str = '';
+		$srcs = explode(',', $srcs);
+		$count = count($srcs);
+		if ($count > 0) {
+			$types = explode(',', $types);
+			$langs = explode(',', $langs);
+			$labels = explode(',', $labels);
+			$str .= $name . ': [';
+			for ($i = 0; $i < $count; $i++) {
+				$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i];
+				if ($langs) {
+					$str .= '", srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"},';
+				}
+			}
+			// strip the final ',' off
+			$str = substr($str, 0, (strlen($str) - 1));
+			$str .= ']'; // end captions
+		}
+		return $str;
+	}
+
+	/**
+	 * Convert the shortcode in the document into the JS necessary to instantiate the VideoPlayer
+	 */
 	function process_shortcode( $atts ) {
 		extract( shortcode_atts( array(
 			// these are the defaults, if nothing is provded in the shorcode
@@ -224,7 +251,7 @@ class infusion_video_player {
 			'captionssrc' => '',
 			'captionstype' => '',
 			'captionssrclang' => '',
-			'captionslanglabel' => 'default',
+			'captionslanglabel' => '',
 			'transcriptssrc' => '',
 			'transcriptstype' => '',
 			'transcriptssrclang' => '',
@@ -233,85 +260,34 @@ class infusion_video_player {
 		), $atts ) );
 
 		$result = '<div class="infvpc-video-player"></div>
-		<script>
-		fluid.registerNamespace("fluid.vpPlugin");
-		';
-		$result .= 'var vidPlayerOpts = {
-		video: {
-			';
+		<script>fluid.registerNamespace("fluid.vpPlugin");';
+		$result .= 'var vidPlayerOpts = {video: {';
 
-		// add the sources array to the opts
-		$sourcessrc = explode(',', $sourcessrc);
-		$sourcestype = explode(',', $sourcestype);
-		$srccount = count($sourcessrc);
-		$result .= '    sources: [';
-		for ($i = 0; $i < $srccount - 1; $i++) {
-			$result .= '{src: "' . $sourcessrc[$i] . '", type: "' . $sourcestype[$i] . '"},';
-		}
-		$result .= '{src: "' . $sourcessrc[$i] . '", type: "' . $sourcestype[$i] . '"}';
-		$result .= ']'; // end sources
+		$result .= infusion_video_player::process_tracklist('sources', $sourcessrc, $sourcestype);
+		$result .= infusion_video_player::process_tracklist(',captions', $captionssrc, $captionstype, $captionssrclang, $captionslanglabel);
+		$result .= infusion_video_player::process_tracklist(',transcripts', $transcriptssrc, $transcriptstype, $transcriptssrclang, $transcriptslanglabel);
 
-		// add the captions array to the opts, if there are any
-		$captionssrc = explode(',', $captionssrc);
-		$capcount = count($captionssrc);
-
-		if ($capcount > 0) {
-			$captionstype = explode(',', $captionstype);
-			$captionssrclang = explode(',', $captionssrclang);
-			$captionslanglabel = explode(',', $captionslanglabel);
-			$result .= ',
-			captions: [';
-			for ($i = 0; $i < $capcount - 1; $i++) {
-				$result .= '{src: "' . $captionssrc[$i] . '", type: "' . $captionstype[$i] . '", srclang: "' . $captionssrclang[$i] . '", label: "' . $captionslanglabel[$i] . '"},';
-			}
-			$result .= '{src: "' . $captionssrc[$i] . '", type: "' . $captionstype[$i] . '", srclang: "' . $captionssrclang[$i] . '", label: "' . $captionslanglabel[$i] . '"}';
-			$result .= ']'; // end captions
-		}
-
-		// add the transcripts array to the opts, if there are any
-		$transcriptssrc = explode(',', $transcriptssrc);
-		$trancount = count($transcriptssrc);
-		if ($trancount > 0) {
-			$transcriptstype = explode(',', $transcriptstype);
-			$transcriptssrclang = explode(',', $transcriptssrclang);
-			$transcriptslanglabel = explode(',', $transcriptslanglabel);
-			$result .= ',
-			transcripts: [';
-			for ($i = 0; $i < $trancount - 1; $i++) {
-				$result .= '{src: "' . $transcriptssrc[$i] . '", type: "' . $transcriptstype[$i] . '", srclang: "' . $transcriptssrclang[$i] . '", label: "' . $transcriptslanglabel[$i] . '"},';
-			}
-			$result .= '{src: "' . $transcriptssrc[$i] . '", type: "' . $transcriptstype[$i] . '", srclang: "' . $transcriptssrclang[$i] . '", label: "' . $transcriptslanglabel[$i] . '"}';
-			$result .= ']'; // end transcripts
-		}
-		$result .= '
-		}'; // end video:
+		$result .= '}'; // end video:
 
 		// add the title, if there is one
 		if ($title) {
-			$result .= ',
-			videoTitle: "' . $title . '"';
+			$result .= ',videoTitle: "' . $title . '"';
 		}
 
 		// add the mechanical stuff
-		$result .= ',
-        templates: {
-            videoPlayer: {href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/videoPlayer_template.html"},
-            menuButton: {href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/menuButton_template.html"}
-        }';
-		$result .= '
-		};'; // end var vidPlayerOpts
+		$result .= ',templates: {
+			videoPlayer: {href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/videoPlayer_template.html"},
+			menuButton: {href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/menuButton_template.html"}
+		}';
+		$result .= '};'; // end var vidPlayerOpts
 
 		$options = get_option('infusion_vp_options');
 		if ($options['add_uio'] == "noUIO") {
-			$result .= '
-			fluid.videoPlayer(".infvpc-video-player", vidPlayerOpts);';
+			$result .= 'fluid.videoPlayer(".infvpc-video-player", vidPlayerOpts);';
 		} else {
-			$result .= '
-			if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }';
-			$result .= '
-			var videoOptions = {container: ".infvpc-video-player", options: vidPlayerOpts};';
-			$result .= '
-			fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {
+			$result .= 'if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }';
+			$result .= 'var videoOptions = {container: ".infvpc-video-player", options: vidPlayerOpts};';
+			$result .= 'fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {
 			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);
 			});';
 		}

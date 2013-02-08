@@ -158,11 +158,11 @@ var fluid = fluid || {};
     var convertTracksToString = function (trackArray, prefix) {
         var togo = "";
         var strs = {};
-        // determine which fields exist, create base strings
+        // determine which fields exist, create base strings for each shortcode attribute
         fluid.each(trackArray[0], function (val, name) {
             strs[name] = "";
         });
-        // construct individual
+        // construct individual shortcode attributes
         fluid.each(trackArray, function (entry, index) {
             fluid.each(strs, function (val, name) {
                 strs[name] += entry[name] + ",";
@@ -173,69 +173,10 @@ var fluid = fluid || {};
             strs[name] = strs[name].substring(0, strs[name].length - 1);
             togo += fluid.stringTemplate(" %0%1='%2'", [prefix, name, strs[name]]);
         });
-
         return togo;
     };
 
     fluid.vpPlugin.insertIntoPost = function (that) {
-        var vidPlayerOpts = {
-            videoTitle: that.locate("title").val(),
-            video: {
-                sources: [],
-                captions: [],
-                transcripts: []
-            },
-            templates: {
-                videoPlayer: {
-                    href: phpVars.pluginUrl + "/lib/videoPlayer/html/videoPlayer_template.html"
-                },
-                menuButton: {
-                    href: phpVars.pluginUrl + "/lib/videoPlayer/html/menuButton_template.html"
-                }
-            }
-        };
-        fluid.each(that.model.sources.tracks, function (entry, index) {
-            vidPlayerOpts.video.sources[index] = {
-                src: entry.src,
-                type: entry.type
-            };
-        });
-        fluid.each(that.model.captions.tracks, function (entry, index) {
-            vidPlayerOpts.video.captions[index] = {
-                src: entry.src,
-                type: entry.type,
-                srclang: entry.srclang,
-                label: entry.langLabel
-            };
-        });
-        fluid.each(that.model.transcripts.tracks, function (entry, index) {
-            vidPlayerOpts.video.transcripts[index] = {
-                src: entry.src,
-                type: entry.type,
-                srclang: entry.srclang,
-                label: entry.langLabel
-            };
-        });
-
-        var htmlString = "<div class='infvpc-video-player'></div>\n<script>\nfluid.registerNamespace('fluid.vpPlugin');";
-
-        if (phpVars.addUIOsetting === "noUIO") {
-            htmlString += "var vidPlayerOpts = " + fluid.prettyPrintJSON(vidPlayerOpts) + ";\n";
-            htmlString += "fluid.videoPlayer('.infvpc-video-player', vidPlayerOpts);\n";
-        } else {
-            htmlString += "if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }\n";
-            var videoOptions = {
-                container: ".infvpc-video-player",
-                options: vidPlayerOpts
-            };
-            htmlString += "var videoOptions = " + fluid.prettyPrintJSON(videoOptions) + ";\n";
-            htmlString += "fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {\n";
-            htmlString += "fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);\n";
-            htmlString += "});\n";
-        }
-
-        htmlString += "</script>";
-
         var shortCodeString = "\n[videoPlayer";
 
         var videoTitle = that.locate("title").val();
@@ -249,7 +190,6 @@ var fluid = fluid || {};
 
         shortCodeString += " uiosetting='" + phpVars.addUIOsetting + "']\n";
         parent.send_to_editor(shortCodeString);
-//        parent.send_to_editor(htmlString);
     };
 
 })(jQuery);
