@@ -16,10 +16,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
 var infusion_vp = infusion_vp || {};
 
+/***
+ * Code to set up PageEnhancer and the FatPanel on every page of this WordPress site.
+ */
 (function ($) {
 
     fluid.registerNamespace("fluid.vpPlugin");
 
+    /**
+     * Small component to announce the availability of a functioning UIO component.
+     * The enhanced VideoPlayer needs access to the relay subcomponent and so can't
+     * instantiate until UIO is ready.
+     */
     fluid.defaults("fluid.vpPlugin.UIOAnnouncer", {
         gradeNames: ["fluid.eventedComponent", "autoInit"],
         events: {
@@ -31,48 +39,49 @@ var infusion_vp = infusion_vp || {};
         fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()});
     }
 
-    $("document").ready(function () {
-        fluid.vpPlugin.initUIO = function () {
-            fluid.pageEnhancer({
-                tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
-            });
+    fluid.vpPlugin.initUIO = function () {
+        fluid.pageEnhancer({
+            tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
+        });
 
-            var opts = {
-                prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/",
-                components: {
-                    relay: {
-                        type: "fluid.videoPlayer.relay"
+        var opts = {
+            prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/",
+            components: {
+                relay: {
+                    type: "fluid.videoPlayer.relay"
+                }
+            },
+            templateLoader: {
+                options: {
+                    templates: {
+                        mediaControls: phpVars.pluginUrl + "/lib/videoPlayer/html/UIOptionsTemplate-media.html"
                     }
-                },
-                templateLoader: {
-                    options: {
-                        templates: {
-                            mediaControls: phpVars.pluginUrl + "/lib/videoPlayer/html/UIOptionsTemplate-media.html"
-                        }
+                }
+            }
+        };
+        if (phpVars.showText) {
+          // Custom strings for slidingPanel button are specified through the plugin admin panel
+            opts.slidingPanel = {
+                options: {
+                    strings: {
+                        showText: phpVars.showText,
+                        hideText: phpVars.hideText
                     }
                 }
             };
-            if (phpVars.showText) {
-              // Custom strings for slidingPanel button are specified through the plugin admin panel
-                opts.slidingPanel = {
-                    options: {
-                        strings: {
-                            showText: phpVars.showText,
-                            hideText: phpVars.hideText
-                        }
-                    }
-                };
-            }
+        }
 
-            var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", opts);
-            fluid.merge(null, fluid.staticEnvironment, {uiOpionsInstance: uiOptions});
-            fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire();
-        };
+        var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", opts);
+        fluid.merge(null, fluid.staticEnvironment, {uiOpionsInstance: uiOptions});
+        fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire();
+    };
 
+    $("document").ready(function () {
         if ($(".flc-uiOptions-fatPanel").length > 0) {
             // document already has UIO markup in it, we don't need to load a template
             fluid.vpPlugin.initUIO();
         } else {
+            // there's no UIO markup, we need to load it, insert it, then instantiate
             $.ajax(phpVars.pluginUrl + "/uioFatPanelTemplate.html", {
                 type: "GET",
                 success: function (data, textStatus, jqXHR) {

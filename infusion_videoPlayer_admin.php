@@ -1,5 +1,13 @@
 <?php
 
+/**
+ * This file sets up the plug-in admin page available through the WordPress 'Settings' admin section.
+ * It allows the administrator to specify how the plugin should work with UIO: either add it to the page,
+ * work with an existing UIO offered by the FSS base theme, or leave UIO out of the picture.
+ * 
+ * It also allows the administrator to specify the show/hide string to be displayed in the UIO fat panel button.
+ */
+
 add_action( 'admin_menu', array('infusion_video_player_admin', 'add_options_to_menu'));
 add_action( 'admin_init', array('infusion_video_player_admin', 'register_options') );
 

@@ -3,7 +3,7 @@
 Plugin Name: Infusion Video Player for Wordpress
 Plugin URI: http://github.com/inclusive-design/videoPlayer-wordpress
 Description: Adds the ability to embed HTML5 videos, including captions and transcripts, using the <a href="http://github.com/fluid-project/videoPlayer/">Infusion Video Player</a>
-Version: 0.w
+Version: 0.1
 Author: The Fluid Project
 Author URI: http://fluidproject.org/
 */
@@ -24,9 +24,8 @@ if ($vpPlugin_options['add_uio'] == 'addUIO') {
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_plugin_js_to_header'));
 
-add_filter('media_upload_tabs', 'infusion_video_player::add_embed_tab');
+add_filter('media_upload_tabs', array('infusion_video_player', 'add_embed_tab'));
 add_action('media_upload_vp_embed_video', array('infusion_video_player', 'embed_media_handler'));
-
 
 add_filter('upload_mimes', array('infusion_video_player', 'custom_upload_mimes'));
 add_filter('the_content', array('infusion_video_player', 'restore_ampersands'));
@@ -35,6 +34,12 @@ add_shortcode( 'videoPlayer', array('infusion_video_player', 'process_shortcode'
 
 infusion_video_player::get_caption_transcript_files();
 
+/**
+ * This plugin adds a tab to the 'upload/insert' dialog allowing an author to specify the details
+ * necessary to embed a video into a post using the Infusion VideoPlayer.
+ * The plugin embeds a shortcode with the information into the post, then when the page is displayed,
+ * converst that shortcode into the necessary JavaScript to instantiate the VideoPlayer.
+ */
 class infusion_video_player {
 
 	public static $caption_file_names = array();
@@ -50,7 +55,32 @@ class infusion_video_player {
 	);
 
 	/**
-	 * Add support for our caption and transcript file types
+	 * Add a tab to the media dialog
+	 */
+	function add_embed_tab($tabs) {
+		$tabs['vp_embed_video']='Embed Video';
+		return $tabs;
+	}
+
+	/**
+	 * Embed the form into the tab in the media dialog.
+	 * The JavaScript in the form will generate the shortcode and embed it into the post.
+	 */
+	function embed_media_handler() {
+		return wp_iframe(array('infusion_video_player', 'media_upload_vp_embed_video_form'));
+	}
+
+	/**
+	 * Create the form
+	 */
+	// need to have 'media_' as prefix, for styling purposes
+	function media_upload_vp_embed_video_form () {
+		media_upload_header();
+		include_once('videoEmbedForm.php');
+	}
+
+	/**
+	 * Add support for our caption and transcript file types to WordPress's media upload
 	 */
 	function custom_upload_mimes ( $existing_mimes=array() ) {
 		foreach (infusion_video_player::$supported_caption_types as $i => $value) {
@@ -100,15 +130,15 @@ class infusion_video_player {
 	 * Add to the document header files needed by the plugin
 	 */
 	function add_plugin_js_to_header() { //loads plugin-related javascripts
+		global $vpPlugin_options;
+	
 	    wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
 	    wp_enqueue_script( 'vpPlugin_trackList', plugins_url('/vpPlugin-trackList.js', __FILE__) );
 	    wp_enqueue_script( 'vpPlugin_mainScript', plugins_url('/vpPlugin.js', __FILE__) );
 
-	    $options = get_option('infusion_vp_options');
-
 		// make some information available to the Javascript files
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
-		$php_vars['addUIOsetting'] = $options['add_uio'];
+		$php_vars['addUIOsetting'] = $vpPlugin_options['add_uio'];
 		$php_vars['captions']['fileNames'] = infusion_video_player::$caption_file_names;
 		$php_vars['captions']['fileUrls'] = infusion_video_player::$caption_file_urls;
 		$php_vars['transcripts']['fileNames'] = infusion_video_player::$transcript_file_names;
@@ -117,75 +147,15 @@ class infusion_video_player {
 		wp_localize_script( 'vpPlugin_mainScript', 'phpVars', $php_vars );
 		wp_localize_script( 'vpPlugin_trackList', 'phpVars', $php_vars );
 		wp_localize_script( 'vpPlugin_trackForm', 'phpVars', $php_vars );
-		if ($options['add_uio'] == 'addUIO') {
+		if ($vpPlugin_options['add_uio'] == 'addUIO') {
 			wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
 		}
 	}
 
 	/**
-	 * Add our tab to the media dialog
-	 */
-	function add_embed_tab($tabs) {
-		$tabs['vp_embed_video']='Embed Video';
-		return $tabs;
-	}
-
-	/**
-	 * Create the form for the tab
-	 */
-	// need to have 'media_' as prefix, for styling purposes
-	function media_upload_vp_embed_video_form () {
-		media_upload_header();
-		include_once('videoEmbedForm.php');
-	}
-
-	/**
-	 * Embed our form into our tab in the media dialog
-	 */
-	function embed_media_handler() {
-		return wp_iframe(array('infusion_video_player', 'media_upload_vp_embed_video_form'));
-	}
-
-	/**
-	 * Retrieve list of currently available caption files from the gallery
-	 */
-	function get_caption_transcript_files() {
-		// get files of types supported by captions
-		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
-		$attachments = get_posts( $args );
-		if ($attachments) {
-			$index = 0;
-			foreach ( $attachments as $post ) {
-				if (in_array($post->post_mime_type, infusion_video_player::$supported_caption_types)) {
-					infusion_video_player::$caption_file_names[$index] = $post->post_title;
-					infusion_video_player::$caption_file_urls[$index] = $post->guid;
-					$index++;
-				}
-			}
-		}
-
-		// get files of types supported by transcript
-		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
-		$attachments = get_posts( $args );
-		if ($attachments) {
-			$index = 0;
-			foreach ( $attachments as $post ) {
-				if (in_array($post->post_mime_type, infusion_video_player::$supported_transcript_types)) {
-					infusion_video_player::$transcript_file_names[$index] = $post->post_title;
-					infusion_video_player::$transcript_file_urls[$index] = $post->guid;
-					$index++;
-				}
-			}
-		}
-	}
-
-	function restore_ampersands($content)
-	{
-	    return preg_replace('/\\&#038;/', '/\\&', $content);
-	}
-
-	/**
-	 * Add to the document header all files needed for UI Options
+	 * Add to the document header all files needed by UI Options
+	 * This will only be done if the plugin itself is adding UIO to the site (not if it's working
+	 * with an existing instance of UIO)
 	 */
 	function add_uio_files_to_header() {
 
@@ -199,50 +169,28 @@ class infusion_video_player {
 	}
 
 	/**
-	 * Add to the document header all files needed for UI Options
+	 * Add to the document header the UIO setup script
 	 */
 	function add_uio_plugin_files_to_header() {
-
+		global $vpPlugin_options;
+		
 		// Plugin+UIO-specific JS files
 		wp_enqueue_script( 'infusion_uio_script', plugins_url('/infusion_uio.js', __FILE__) );
 
 		// make plugin path and options available to the JS script
-		$options = get_option('infusion_vp_options');
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
-		$php_vars['showText'] = $options['show_text'];
-		$php_vars['hideText'] = $options['hide_text'];
+		$php_vars['showText'] = $vpPlugin_options['show_text'];
+		$php_vars['hideText'] = $vpPlugin_options['hide_text'];
 		wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
 	}
 
 	/**
-	 * Convert the shortcode attributes specific to one track type onto the relevan VideoPlayer args
-	 */
-	function process_tracklist($name, $srcs, $types, $langs=null, $labels=null) {
-		$str = '';
-		$srcs = explode(',', $srcs);
-		$count = count($srcs);
-		if ($count > 0) {
-			$types = explode(',', $types);
-			$langs = explode(',', $langs);
-			$labels = explode(',', $labels);
-			$str .= $name . ': [';
-			for ($i = 0; $i < $count; $i++) {
-				$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i];
-				if ($langs) {
-					$str .= '", srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"},';
-				}
-			}
-			// strip the final ',' off
-			$str = substr($str, 0, (strlen($str) - 1));
-			$str .= ']'; // end captions
-		}
-		return $str;
-	}
-
-	/**
-	 * Convert the shortcode in the document into the JS necessary to instantiate the VideoPlayer
+	 * Convert the shortcode in the document into the JS necessary to instantiate the VideoPlayer.
+	 * This code runs when the post/page is served up.
 	 */
 	function process_shortcode( $atts ) {
+		global $vpPlugin_options;
+	
 		extract( shortcode_atts( array(
 			// these are the defaults, if nothing is provded in the shorcode
 			'title' => '',
@@ -281,8 +229,7 @@ class infusion_video_player {
 		}';
 		$result .= '};'; // end var vidPlayerOpts
 
-		$options = get_option('infusion_vp_options');
-		if ($options['add_uio'] == "noUIO") {
+		if ($vpPlugin_options['add_uio'] == "noUIO") {
 			$result .= 'fluid.videoPlayer(".infvpc-video-player", vidPlayerOpts);';
 		} else {
 			$result .= 'if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }';
@@ -295,5 +242,70 @@ class infusion_video_player {
 		return $result;
 	}
 
+	/**
+	 * Convert the shortcode attributes specific to one track type onto the relevant VideoPlayer args
+	 */
+	function process_tracklist($name, $srcs, $types, $langs=null, $labels=null) {
+		$str = '';
+		$srcs = explode(',', $srcs);
+		$count = count($srcs);
+		if ($count > 0) {
+			$types = explode(',', $types);
+			$langs = explode(',', $langs);
+			$labels = explode(',', $labels);
+			$str .= $name . ': [';
+			for ($i = 0; $i < $count; $i++) {
+				$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i];
+				if ($langs) {
+					$str .= '", srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"},';
+				}
+			}
+			// strip the final ',' off
+			$str = substr($str, 0, (strlen($str) - 1));
+			$str .= ']'; // end captions
+		}
+		return $str;
+	}
+
+	/**
+	 * Retrieve list of currently available caption files (i.e. previously uploaded files) from the gallery
+	 */
+	function get_caption_transcript_files() {
+		// get files of types supported by captions
+		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
+		$attachments = get_posts( $args );
+		if ($attachments) {
+			$index = 0;
+			foreach ( $attachments as $post ) {
+				if (in_array($post->post_mime_type, infusion_video_player::$supported_caption_types)) {
+					infusion_video_player::$caption_file_names[$index] = $post->post_title;
+					infusion_video_player::$caption_file_urls[$index] = $post->guid;
+					$index++;
+				}
+			}
+		}
+
+		// get files of types supported by transcript
+		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
+		$attachments = get_posts( $args );
+		if ($attachments) {
+			$index = 0;
+			foreach ( $attachments as $post ) {
+				if (in_array($post->post_mime_type, infusion_video_player::$supported_transcript_types)) {
+					infusion_video_player::$transcript_file_names[$index] = $post->post_title;
+					infusion_video_player::$transcript_file_urls[$index] = $post->guid;
+					$index++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * WordPress normally sanitizes '&', but we need to leave them intact for youtube urls.
+	 */
+	function restore_ampersands($content)
+	{
+	    return preg_replace('/\\&#038;/', '/\\&', $content);
+	}
 }
 ?>

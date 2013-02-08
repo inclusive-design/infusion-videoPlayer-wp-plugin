@@ -19,7 +19,7 @@ var fluid = fluid || {};
 (function ($) {
 
     /**************************************************************
-     * 
+     * Root component for the VideoPlayer plugin form
      */
     fluid.defaults("fluid.vpPlugin", {
         gradeNames: ["fluid.viewComponent", "autoInit"],
