@@ -255,10 +255,13 @@ class infusion_video_player {
 			$labels = explode(',', $labels);
 			$str .= $name . ': [';
 			for ($i = 0; $i < $count; $i++) {
-				$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i];
-				if ($langs) {
-					$str .= '", srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"},';
+				if ($srcs[$i]) {
+					$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i];
+					if ($langs) {
+						$str .= '", srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"}';
+					}
 				}
+				$str .= ",";
 			}
 			// strip the final ',' off
 			$str = substr($str, 0, (strlen($str) - 1));
