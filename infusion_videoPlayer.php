@@ -193,6 +193,7 @@ class infusion_video_player {
 	
 		extract( shortcode_atts( array(
 			// these are the defaults, if nothing is provded in the shorcode
+			'id' => '',
 			'title' => '',
 			'sourcessrc' => '',
 			'sourcestype' => '',
@@ -207,7 +208,7 @@ class infusion_video_player {
 			'uiosetting' => ''
 		), $atts ) );
 
-		$result = '<div class="infvpc-video-player"></div>
+		$result = '<div id="' . $id . '"></div>
 		<script>fluid.registerNamespace("fluid.vpPlugin");';
 		$result .= 'var vidPlayerOpts = {video: {';
 
@@ -230,10 +231,10 @@ class infusion_video_player {
 		$result .= '};'; // end var vidPlayerOpts
 
 		if ($vpPlugin_options['add_uio'] == "noUIO") {
-			$result .= 'fluid.videoPlayer(".infvpc-video-player", vidPlayerOpts);';
+			$result .= 'fluid.videoPlayer("#' . $id . '", vidPlayerOpts);';
 		} else {
 			$result .= 'if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }';
-			$result .= 'var videoOptions = {container: ".infvpc-video-player", options: vidPlayerOpts};';
+			$result .= 'var videoOptions = {container: "#' . $id . '", options: vidPlayerOpts};';
 			$result .= 'fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {
 			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);
 			});';
