@@ -1,4 +1,4 @@
-wordpress-videoPlayer-plugin
-============================
+Infusion VideoPlayer WordPress Plugin
+=====================================
 
-A Wordpress plugin that allows users to embed video in posts using the Infusion Video Player
+A WordPress plugin that allows users to embed video in posts using the Infusion Video Player.
