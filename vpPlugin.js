@@ -177,7 +177,7 @@ var fluid = fluid || {};
     };
 
     fluid.vpPlugin.insertIntoPost = function (that) {
-        var shortCodeString = "\n[videoPlayer";
+        var shortCodeString = "\n[videoPlayer id='vp-" + fluid.allocateGuid() + "' ";
 
         var videoTitle = that.locate("title").val();
         if (videoTitle) {
