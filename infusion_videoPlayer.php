@@ -115,6 +115,7 @@ class infusion_video_player {
 	    wp_enqueue_script('mediaelement', plugins_url('/lib/videoPlayer/lib/mediaelement/js/mediaelement.js', __FILE__), array(), null);
 
 	    wp_enqueue_script('VideoPlayer_framework', plugins_url('/lib/videoPlayer/js/VideoPlayer_framework.js', __FILE__), array(), null);
+	    wp_enqueue_script('VideoPlayer_showHhide', plugins_url('/lib/videoPlayer/js/VideoPlayer_showHide.js', __FILE__), array(), null);
 	    wp_enqueue_script('ToggleButton', plugins_url('/lib/videoPlayer/js/ToggleButton.js', __FILE__), array(), null);
 	    wp_enqueue_script('MenuButton', plugins_url('/lib/videoPlayer/js/MenuButton.js', __FILE__), array(), null);
 	    wp_enqueue_script('VideoPlayer_html5Captionator', plugins_url('/lib/videoPlayer/js/VideoPlayer_html5Captionator.js', __FILE__), array(), null);
@@ -239,6 +240,16 @@ class infusion_video_player {
 			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);
 			});';
 		}
+
+		$result .= 'fluid.demands("fluid.videoPlayer.controllers", "fluid.videoPlayer", {
+			options: {
+				templates: {
+					controllers: {
+						href: "' . __(plugins_url('', __FILE__)) . '/lib/videoPlayer/html/videoPlayer_controllers_template.html"
+					}
+				}
+			}
+		});';
 		$result .= '</script>';
 		return $result;
 	}
