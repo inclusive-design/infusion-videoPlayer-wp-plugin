@@ -96,6 +96,8 @@ class infusion_video_player {
 	 * Add to the document header all files needed by the VideoPlayer
 	 */
 	function add_vp_files_to_header() {
+        global $wp_styles;
+	
 		// FSS-specific CSS files
 		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-layout.css', __FILE__), array(), null);
 		wp_enqueue_style( 'fss-text', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-text.css', __FILE__), array(), null);
@@ -105,6 +107,10 @@ class infusion_video_player {
 		wp_enqueue_style( 'VideoPlayer', plugins_url('/lib/videoPlayer/css/VideoPlayer.css', __FILE__), array(), null);
 		wp_enqueue_style( 'captions', plugins_url('/lib/videoPlayer/lib/captionator/css/captions.css', __FILE__), array(), null);
 		wp_enqueue_style( 'localCss', plugins_url('/vpPlugin.css', __FILE__), array(), null);
+
+        wp_register_style('ie-only', plugins_url('/lib/videoPlayer/css/ltie9.css',__FILE__));
+        $wp_styles->add_data('ie-only', 'conditional', 'lt IE 9');
+        wp_enqueue_style('ie-only');
 
 		// Infusion
 	    wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/lib/infusion/MyInfusion.js', __FILE__), array(), null);
