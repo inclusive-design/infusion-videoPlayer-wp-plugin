@@ -240,10 +240,10 @@ class infusion_video_player {
 		if ($vpPlugin_options['add_uio'] == "noUIO") {
 			$result .= 'fluid.videoPlayer("#' . $id . '", vidPlayerOpts);';
 		} else {
-			$result .= 'if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()}); }';
+			$result .= 'if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.staticEnvironment.UIOAnnouncer = fluid.vpPlugin.UIOAnnouncer(); }';
 			$result .= 'var videoOptions = {container: "#' . $id . '", options: vidPlayerOpts};';
 			$result .= 'fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {
-			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOpionsInstance.relay);
+			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOptionsInstance.relay);
 			});';
 		}
 

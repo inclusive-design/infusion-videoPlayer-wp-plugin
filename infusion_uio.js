@@ -36,7 +36,7 @@ var infusion_vp = infusion_vp || {};
     });
 
     if (!fluid.staticEnvironment.UIOAnnouncer) {
-        fluid.merge(null, fluid.staticEnvironment, {UIOAnnouncer: fluid.vpPlugin.UIOAnnouncer()});
+        fluid.staticEnvironment.UIOAnnouncer = fluid.vpPlugin.UIOAnnouncer();
     }
 
     fluid.vpPlugin.initUIO = function () {
@@ -72,7 +72,7 @@ var infusion_vp = infusion_vp || {};
         }
 
         var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", opts);
-        fluid.merge(null, fluid.staticEnvironment, {uiOpionsInstance: uiOptions});
+        fluid.staticEnvironment.uiOptionsInstance = uiOptions;
         fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire();
     };
 
