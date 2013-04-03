@@ -14,8 +14,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 // JSLint options 
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
 
-var infusion_vp = infusion_vp || {};
-
 /***
  * Code to set up PageEnhancer and the FatPanel on every page of this WordPress site.
  */
@@ -41,11 +39,11 @@ var infusion_vp = infusion_vp || {};
 
     fluid.vpPlugin.initUIO = function () {
         fluid.pageEnhancer({
-            tocTemplate: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html"
+            tocTemplate: phpVars.pluginUrl + phpVars.tocTemplate
         });
 
         var opts = {
-            prefix: phpVars.pluginUrl + "/lib/videoPlayer/lib/infusion/components/uiOptions/html/",
+            prefix: phpVars.pluginUrl + phpVars.prefix,
             components: {
                 relay: {
                     type: "fluid.videoPlayer.relay"
@@ -54,7 +52,7 @@ var infusion_vp = infusion_vp || {};
             templateLoader: {
                 options: {
                     templates: {
-                        mediaControls: phpVars.pluginUrl + "/lib/videoPlayer/html/UIOptionsTemplate-media.html"
+                        mediaControls: phpVars.pluginUrl + phpVars.mediaTemplate
                     }
                 }
             }
@@ -82,13 +80,14 @@ var infusion_vp = infusion_vp || {};
             fluid.vpPlugin.initUIO();
         } else {
             // there's no UIO markup, we need to load it, insert it, then instantiate
-            $.ajax(phpVars.pluginUrl + "/uioFatPanelTemplate.html", {
+            $.ajax(phpVars.pluginUrl + phpVars.fatPanelTemplate, {
                 type: "GET",
                 success: function (data, textStatus, jqXHR) {
                     $("body").prepend(data);
                     fluid.vpPlugin.initUIO();
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
+                    fluid.log("Error loading initial HTML for UI Options");
                 }
             });
         }

@@ -54,7 +54,8 @@ var fluid = fluid || {};
             insertIntoPost: {
                 funcName: "fluid.vpPlugin.insertIntoPost",
                 args: ["{vpPlugin}"]
-            }
+            },
+            convertTracksToString: "fluid.vpPlugin.convertTracksToString"
         },
         components: {
             videoForm: {
@@ -72,12 +73,7 @@ var fluid = fluid || {};
                         types: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
                         typeLabels: ["WEBM", "MP4", "OGG", "OGV", "YouTube"]
                     },
-                    invokers: {
-                        addUploadedFiles: "fluid.identity",
-                        addFileSubtree: "fluid.identity",
-                        addLangSubtree: "fluid.identity",
-                        injectPrompt: "fluid.identity"
-                    }
+                    includeFilesAndLanguages: false
                 }
             },
             videoList: {
@@ -155,7 +151,7 @@ var fluid = fluid || {};
         });
     };
     
-    var convertTracksToString = function (trackArray, prefix) {
+    fluid.vpPlugin.convertTracksToString = function (trackArray, prefix) {
         var togo = "";
         var strs = {};
         // determine which fields exist, create base strings for each shortcode attribute
@@ -184,9 +180,9 @@ var fluid = fluid || {};
             shortCodeString += " title='" + videoTitle + "'";
         }
 
-        shortCodeString += convertTracksToString(that.model.sources.tracks, "sources");
-        shortCodeString += convertTracksToString(that.model.captions.tracks, "captions");
-        shortCodeString += convertTracksToString(that.model.transcripts.tracks, "transcripts");
+        shortCodeString += that.convertTracksToString(that.model.sources.tracks, "sources");
+        shortCodeString += that.convertTracksToString(that.model.captions.tracks, "captions");
+        shortCodeString += that.convertTracksToString(that.model.transcripts.tracks, "transcripts");
 
         shortCodeString += " uiosetting='" + phpVars.addUIOsetting + "']\n";
         parent.send_to_editor(shortCodeString);

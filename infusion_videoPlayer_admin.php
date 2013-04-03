@@ -74,6 +74,20 @@ class infusion_video_player_admin {
 			<p class="help">This text will be used to label the UI Options button while the panel is open.</p>
 		</div>
 		<?php
+
+
+		// Eventually, these paths and filenames should be presented through the UI for the site
+		// administrator to customize, registered as their own settings field, with their own callback, etc
+		$options['toc_template'] = '/lib/videoPlayer/lib/infusion/components/tableOfContents/html/TableOfContents.html';
+		$options['prefix'] = '/lib/videoPlayer/lib/infusion/components/uiOptions/html/';
+		$options['media_template'] = '/lib/videoPlayer/html/UIOptionsTemplate-media.html';
+		$options['fatpanel_template'] = '/uioFatPanelTemplate.html';
+		?>
+		<input type="hidden" name="infusion_vp_options[toc_template]" value="<?php echo $options['toc_template']; ?>" />
+		<input type="hidden" name="infusion_vp_options[prefix]" value="<?php echo $options['prefix']; ?>" />
+		<input type="hidden" name="infusion_vp_options[media_template]" value="<?php echo $options['media_template']; ?>" />
+		<input type="hidden" name="infusion_vp_options[fatpanel_template]" value="<?php echo $options['fatpanel_template']; ?>" />
+		<?php
 	}
 
 	function add_options_page() {

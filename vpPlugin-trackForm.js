@@ -39,10 +39,15 @@ var fluid = fluid || {};
             afterTrackAdded: null
         },
         listeners: {
+            onCreate: {
+                listener: "fluid.vpPlugin.trackForm.addFilesAndLanguages",
+                args: "{trackForm}"
+            },
             onAddTrack: {
                 listener: "fluid.vpPlugin.trackForm.addTrack",
                 args: "{trackForm}"
-            }
+            },
+            afterRender: "fluid.vpPlugin.trackForm.bindDOMEvents"
         },
         selectors: {
             add: ".vppc-trackForm-add",
@@ -79,7 +84,6 @@ var fluid = fluid || {};
         selectorsToIgnore: ["add", "source", "type", "cancel", "done"],
         produceTree: "fluid.vpPlugin.trackForm.produceTree",
         rendererOptions: {
-//            debugMode: true,
             autoBind: true
         },
         resources: {
@@ -91,8 +95,9 @@ var fluid = fluid || {};
         },
         modelPath: "mediaType",
         supportedValues: {
-            languageCodes: ["ar", "en", "fr", "zh", "pt", "ru", "es"],
-            languageNames: ["Arabic", "English", "French", "Chinese", "Portuguese", "Russian", "Spanish"],
+            languageNames: ["Arabic", "Czech", "Dutch", "English", "French", "German", "Greek", "Hindi", "Japanese", "Portuguese", "Punjabi", "Russian", "Mandarin", "Spanish", "Swedish"],
+            languageCodes: ["ar", "cs", "nl", "en", "fr", "de", "el", "hi", "ja", "pt", "pa", "ru", "zh", "es", "sv"],
+
             types: ["text/amarajson", "JSONcc"],
             typeLabels: ["Amara", "JSON"]
         },
@@ -101,8 +106,8 @@ var fluid = fluid || {};
             "JSONcc": "nonAmara"
         },
         invokers: {
-            addUploadedFiles: {
-                funcName: "fluid.vpPlugin.trackForm.addUploadedFiles",
+            resetForm: {
+                funcName: "fluid.vpPlugin.trackForm.resetForm",
                 args: ["{trackForm}"]
             },
             addFileSubtree: "fluid.vpPlugin.trackForm.addFileSubtree",
@@ -115,10 +120,18 @@ var fluid = fluid || {};
                 funcName: "fluid.vpPlugin.trackForm.injectPrompt",
                 args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
             }
-        }
+        },
+        includeFilesAndLanguages: true
     });
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackForm");
 
+    /**
+     * @param   that    the component
+     * @param   data    either a  string pathname into the model, referencing the data in the model
+     *                  OR an actual array of data
+     * @param   name    either a  string pathname into the model, referencing the names in the model
+     *                  OR an actual array of names
+     */
     fluid.vpPlugin.trackForm.injectPrompt = function (that, data, name) {
         var dataArray = typeof data === "string" ? that.model[that.options.modelPath][data] : data;
         var namesArray = typeof name === "string" ? that.model[that.options.modelPath][name] : name;
@@ -139,24 +152,16 @@ var fluid = fluid || {};
     };
 
     fluid.vpPlugin.trackForm.finalInit = function (that) {
-        // add list of uploaded files to model
-        that.addUploadedFiles();
-
-        // add Please Select to dropdowns
-        that.injectPrompt("fileUrls", "fileNames");
-        that.injectPrompt(that.options.supportedValues.languageCodes, that.options.supportedValues.languageNames);
-
-        that.resetForm = function () {
-            fluid.each(that.model[that.options.modelPath].fields, function (entry) {
-                that.applier.requestChange(that.options.modelPath + "." + entry, "");
-            });
-            that.refreshView();
-            that.locate("type").hide();
-            that.locate("source").hide();
-        };
-
-        that.events.afterRender.addListener(fluid.vpPlugin.trackForm.bindDOMEvents);
         that.applier.guards.addListener(that.options.modelPath + ".tracks", that.validateNewTrackList);
+    };
+
+    fluid.vpPlugin.trackForm.resetForm = function (that) {
+        fluid.each(that.model[that.options.modelPath].fields, function (entry) {
+            that.applier.requestChange(that.options.modelPath + "." + entry, "");
+        });
+        that.refreshView();
+        that.locate("type").hide();
+        that.locate("source").hide();
     };
 
     fluid.vpPlugin.trackForm.bindDOMEvents = function (that) {
@@ -209,8 +214,10 @@ var fluid = fluid || {};
             url: "${" + that.options.modelPath + ".src}"
         };
 
-        that.addFileSubtree(that, tree);
-        that.addLangSubtree(that, tree);
+        if (that.options.includeFilesAndLanguages) {
+            that.addFileSubtree(that, tree);
+            that.addLangSubtree(that, tree);
+        }
         return tree;
     };
 
@@ -226,9 +233,14 @@ var fluid = fluid || {};
         that.applier.requestChange(that.options.modelPath + ".tracks", trackList);
     };
 
-    fluid.vpPlugin.trackForm.addUploadedFiles = function (that) {
-        that.applier.requestChange(that.options.modelPath + ".fileUrls", phpVars[that.options.modelPath].fileUrls);
-        that.applier.requestChange(that.options.modelPath + ".fileNames", phpVars[that.options.modelPath].fileNames);
+    fluid.vpPlugin.trackForm.addFilesAndLanguages = function (that) {
+        if (that.options.includeFilesAndLanguages) {
+            that.applier.requestChange(that.options.modelPath + ".fileUrls", phpVars[that.options.modelPath].fileUrls);
+            that.applier.requestChange(that.options.modelPath + ".fileNames", phpVars[that.options.modelPath].fileNames);
+
+            that.injectPrompt("fileUrls", "fileNames");
+            that.injectPrompt(that.options.supportedValues.languageCodes, that.options.supportedValues.languageNames);
+        }
     };
 
     fluid.vpPlugin.trackForm.addFileSubtree = function (that, tree) {

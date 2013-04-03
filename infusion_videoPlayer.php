@@ -186,8 +186,13 @@ class infusion_video_player {
 
 		// make plugin path and options available to the JS script
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
+		$php_vars['addUIOsetting'] = $vpPlugin_options['add_uio'];
 		$php_vars['showText'] = $vpPlugin_options['show_text'];
 		$php_vars['hideText'] = $vpPlugin_options['hide_text'];
+		$php_vars['tocTemplate'] = $vpPlugin_options['toc_template'];
+		$php_vars['prefix'] = $vpPlugin_options['prefix'];
+		$php_vars['mediaTemplate'] = $vpPlugin_options['media_template'];
+		$php_vars['fatPanelTemplate'] = $vpPlugin_options['fatpanel_template'];
 		wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
 	}
 
@@ -242,6 +247,8 @@ class infusion_video_player {
 		} else {
 			$result .= 'if (!fluid.staticEnvironment.UIOAnnouncer) { fluid.staticEnvironment.UIOAnnouncer = fluid.vpPlugin.UIOAnnouncer(); }';
 			$result .= 'var videoOptions = {container: "#' . $id . '", options: vidPlayerOpts};';
+			// We can't access the uiOptionsInstance until we're sure it's in the environment,
+			// so we wait for UIAnnouncer to tell us it's there
 			$result .= 'fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.addListener(function () {
 			    fluid.videoPlayer.makeEnhancedInstances(videoOptions, fluid.staticEnvironment.uiOptionsInstance.relay);
 			});';
