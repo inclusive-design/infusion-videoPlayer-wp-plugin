@@ -42,11 +42,7 @@ var fluid = fluid || {};
             }
         },
         selectors: {
-            row: ".vppc-trackList-trackRow",
-            deleteButton: ".vppc-trackList-trackDelete",
-            src: ".vppc-trackList-trackSrc",
-            langLabel: ".vppc-trackList-trackLang",
-            type: ".vppc-trackList-trackType"
+            row: ".vppc-trackList-trackRow"
         },
         repeatingSelectors: ["row"],
         produceTree: "fluid.vpPlugin.trackList.produceTree",
@@ -82,53 +78,85 @@ var fluid = fluid || {};
     };
 
     fluid.vpPlugin.trackList.produceTree = function (that) {
-        var listExpander = {
-            type: "fluid.renderer.repeat",
-            repeatID: "row",
-            controlledBy: that.options.modelPath + ".tracks",
-            pathAs: "track",
-            tree: {
-                deleteButton: {
+        var tree = {
+            expander: [{
+                type: "fluid.renderer.repeat",
+                repeatID: "row",
+                controlledBy: that.options.modelPath + ".tracks",
+                pathAs: "track",
+                tree: {
                     decorators: [{
                         type: "fluid",
-                        func: "fluid.vpPlugin.trackList.deleteButton",
+                        func: "fluid.vpPlugin.trackList.columns",
                         options: {
-                            idPrefix:  "${{track}}",
-                            listeners: {
-                                onDeleteRow: that.events.onDeleteRow.fire
-                            }
+                            model: that.model,
+                            applier: that.applier,
+                            modelPath: that.options.modelPath,
+                            trackPath: "{track}"
                         }
                     }]
                 }
-            }
-        };
-        // Only render columns for fields in the model
-        fluid.each(that.model[that.options.modelPath].fields, function (entry) {
-            listExpander.tree[entry] = "${{track}." + entry + "}";
-        });
-        var tree = {
-            expander: [listExpander]
+            }]
         };
         return tree;
     };
 
-    /********************************************
-     * Decorator for delete button
-     * Adds index information and click handling
-     ********************************************/
-    fluid.defaults("fluid.vpPlugin.trackList.deleteButton", {
-        gradeNames: ["fluid.viewComponent", "autoInit"],
-        finalInitFunction: "fluid.vpPlugin.trackList.deleteButton.finalInit",
+    /**********************************************************
+     * Component to render the columns of a row in a trackList
+     **********************************************************/
+    fluid.defaults("fluid.vpPlugin.trackList.columns", {
+        gradeNames: ["fluid.rendererComponent", "autoInit"],
+        model: {
+            fields: []
+        },
         events: {
             onDeleteRow: null
+        },
+        listeners: {
+            onDeleteRow: {
+                listener: "fluid.vpPlugin.trackList.columns.deleteRow",
+                args: ["{columns}"]
+            }
+        },
+        selectors: {
+            src: ".vppc-trackList-trackSrc",
+            type: ".vppc-trackList-trackType",
+            langLabel: ".vppc-trackList-trackLang",
+            deleteButton: ".vppc-trackList-trackDelete"
+        },
+
+        renderOnInit: true,
+        repeatingSelectors: ["column"],
+        produceTree: "fluid.vpPlugin.trackList.columns.produceTree",
+        rendererOptions: {
+//            debugMode: true,
+            autoBind: true
         }
     });
 
-    fluid.vpPlugin.trackList.deleteButton.finalInit = function (that) {
-        that.container.attr("value", that.options.idPrefix.substring(that.options.idPrefix.length - 1));
-        that.container.click(function (evt) {
-            that.events.onDeleteRow.fire($(evt.target).attr("value"));
+    fluid.vpPlugin.trackList.columns.produceTree = function (that) {
+        var tree = {
+            deleteButton: {
+                decorators: [{
+                    type: "jQuery",
+                    func: "click",
+                    args: that.events.onDelete.fire
+                }]
+            }
+        };
+        fluid.each(fluid.get(that.model, that.options.modelPath).fields, function (field, index) {
+            tree[field] = {
+                value: fluid.get(that.model, that.options.trackPath)[field]
+            };
         });
+        return tree;
     };
 
+    fluid.vpPlugin.trackList.columns.deleteRow = function (that) {
+        var newList = fluid.copy(that.model[that.options.modelPath].tracks);
+        var index = parseInt(that.options.trackPath.substring(that.options.trackPath.length - 1));
+        newList.splice(index, 1);
+        that.applier.requestChange(that.options.modelPath + ".tracks", newList);
+
+    };
 })(jQuery);
