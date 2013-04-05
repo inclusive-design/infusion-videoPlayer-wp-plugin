@@ -62,6 +62,7 @@ var fluid = fluid || {};
             fileTitle: ".vppc-trackForm-fileSrcTitle",
             fileLabel: ".vppc-trackForm-fileLabel",
             file: ".vppc-trackForm-filename",
+            fileHelp: ".vppc-trackForm-filenameHelp",
             langLabel: ".vppc-trackForm-langLabel",
             lang: ".vppc-trackForm-lang",
             cancel: ".vppc-trackForm-cancel",
@@ -76,12 +77,12 @@ var fluid = fluid || {};
             none: "No files yet"
         },
         styles: {
-            amara: "vpp-trackForm-urlSrc",
-            nonAmara: "vpp-trackForm-fileSrc",
+            urlSrc: "vpp-trackForm-urlSrc",
+            fileSrc: "vpp-trackForm-fileSrc",
             invalid: "vpp-trackForm-invalid"
         },
         repeatingSelectors: ["typeRow"],
-        selectorsToIgnore: ["add", "source", "type", "cancel", "done"],
+        selectorsToIgnore: ["add", "source", "type", "cancel", "done", "fileHelp"],
         produceTree: "fluid.vpPlugin.trackForm.produceTree",
         rendererOptions: {
             autoBind: true
@@ -102,8 +103,13 @@ var fluid = fluid || {};
             typeLabels: ["Amara", "JSON"]
         },
         stylesForTypes: {
-            "text/amarajson": "amara",
-            "JSONcc": "nonAmara"
+            "video/webm": "urlSrc",
+            "video/mp4": "urlSrc",
+            "video/ogg": "urlSrc",
+            "video/ogv": "urlSrc",
+            "video/youtube": "urlSrc",
+            "text/amarajson": "urlSrc",
+            "JSONcc": "fileSrc"
         },
         invokers: {
             resetForm: {

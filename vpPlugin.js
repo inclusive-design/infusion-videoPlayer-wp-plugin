@@ -47,7 +47,6 @@ var fluid = fluid || {};
         },
         selectors: {
             title: ".vppc-videoTitle",
-            cancel: ".vppc-cancel",
             insert: ".vppc-insert"
         },
         invokers: {
@@ -102,8 +101,8 @@ var fluid = fluid || {};
                         typeLabels: ["Amara", "VTT"]
                     },
                     stylesForTypes: {
-                        "text/amarajson": "amara",
-                        "text/vtt": "nonAmara"
+                        "text/amarajson": "urlSrc",
+                        "text/vtt": "fileSrc"
                     }
                 }
             },
@@ -143,9 +142,6 @@ var fluid = fluid || {};
     });
 
     fluid.vpPlugin.finalInit = function (that) {
-        that.locate("cancel").click(function () {
-            
-        });
         that.locate("insert").click(function () {
             that.insertIntoPost();
         });

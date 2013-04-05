@@ -140,7 +140,7 @@ var fluid = fluid || {};
                 decorators: [{
                     type: "jQuery",
                     func: "click",
-                    args: that.events.onDelete.fire
+                    args: that.events.onDeleteRow.fire
                 }]
             }
         };
