@@ -18,7 +18,8 @@ var fluid = fluid || {};
 
 (function ($) {
     /**************************************************************
-     * 
+     * Component for rendering a list of tracks.
+     * This component is re-used for all three types of tracks: src, caption, transcript.
      */
     fluid.defaults("fluid.vpPlugin.trackList", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
@@ -30,15 +31,6 @@ var fluid = fluid || {};
         model: {
             mediaType: {
                 tracks: []
-            }
-        },
-        events: {
-            onDeleteRow: null
-        },
-        listeners: {
-            onDeleteRow: {
-                listener: "fluid.vpPlugin.trackList.deleteRow",
-                args: ["{trackList}", "{arguments}.0"]
             }
         },
         selectors: {
@@ -69,12 +61,6 @@ var fluid = fluid || {};
 
     fluid.vpPlugin.trackList.finalInit = function (that) {
         that.applier.modelChanged.addListener(that.options.modelPath + ".tracks", that.refreshView);
-    };
-
-    fluid.vpPlugin.trackList.deleteRow = function (that, index) {
-        var newList = fluid.copy(that.model[that.options.modelPath].tracks);
-        newList.splice(index, 1);
-        that.applier.requestChange(that.options.modelPath + ".tracks", newList);
     };
 
     fluid.vpPlugin.trackList.produceTree = function (that) {
@@ -157,6 +143,5 @@ var fluid = fluid || {};
         var index = parseInt(that.options.trackPath.substring(that.options.trackPath.length - 1));
         newList.splice(index, 1);
         that.applier.requestChange(that.options.modelPath + ".tracks", newList);
-
     };
 })(jQuery);

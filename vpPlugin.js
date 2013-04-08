@@ -147,6 +147,13 @@ var fluid = fluid || {};
         });
     };
     
+    /**
+     * Convert a track list from the model into strings that can be embedded in the WordPress
+     * plugin shortcode
+     * 
+     * @param {Object} trackArray   the array of tracks
+     * @param {Object} prefix       the string prefix (based on the type of track, e.g. 'src', 'caption')
+     */
     fluid.vpPlugin.convertTracksToString = function (trackArray, prefix) {
         var togo = "";
         var strs = {};
@@ -168,6 +175,10 @@ var fluid = fluid || {};
         return togo;
     };
 
+    /**
+     * Convert the information from the form into string format and insert it into the post, in
+     * the WordPress 'shortcode' format.
+     */
     fluid.vpPlugin.insertIntoPost = function (that) {
         var shortCodeString = "\n[videoPlayer id='vp-" + fluid.allocateGuid() + "' ";
 

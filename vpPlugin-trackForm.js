@@ -17,16 +17,13 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 var fluid = fluid || {};
 
 (function ($) {
-    /**************************************************************
-     * 
+    /*************************************************************************************
+     * Root component for rendering the form that collects information about a track.
+     * This component is re-used for all three types of tracks: src, caption, transcript.
      */
     fluid.defaults("fluid.vpPlugin.trackForm", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         preInitFunction: "fluid.vpPlugin.trackForm.preInit",
-        finalInitFunction: "fluid.vpPlugin.trackForm.finalInit",
-        mergePolicy: {
-            selectors: "replace"
-        },
         model: {
             mediaType: {
                 url: "test url",
@@ -36,7 +33,8 @@ var fluid = fluid || {};
         },
         events: {
             onAddTrack: null,
-            afterTrackAdded: null
+            afterTrackAdded: null,
+            invalidField: null
         },
         listeners: {
             onCreate: {
@@ -47,6 +45,7 @@ var fluid = fluid || {};
                 listener: "fluid.vpPlugin.trackForm.addTrack",
                 args: "{trackForm}"
             },
+            invalidField: "fluid.vpPlugin.trackForm.highlightField",
             afterRender: "fluid.vpPlugin.trackForm.bindDOMEvents"
         },
         selectors: {
@@ -55,7 +54,7 @@ var fluid = fluid || {};
             title: ".vppc-trackForm-title",
             type: ".vppc-trackForm-type",
             typeRow: ".vppc-trackForm-typeRow",
-            typeInput: ".vppc-trackForm-typeInput   ",
+            typeInput: ".vppc-trackForm-typeInput",
             typeLabel: ".vppc-trackForm-typeLabel",
             urlTitle: ".vppc-trackForm-urlSrcTitle",
             url: ".vppc-trackForm-url",
@@ -98,10 +97,10 @@ var fluid = fluid || {};
         supportedValues: {
             languageNames: ["Arabic", "Czech", "Dutch", "English", "French", "German", "Greek", "Hindi", "Japanese", "Portuguese", "Punjabi", "Russian", "Mandarin", "Spanish", "Swedish"],
             languageCodes: ["ar", "cs", "nl", "en", "fr", "de", "el", "hi", "ja", "pt", "pa", "ru", "zh", "es", "sv"],
-
             types: ["text/amarajson", "JSONcc"],
             typeLabels: ["Amara", "JSON"]
         },
+        // this style is used to show/hide different versions of the form based on the type of media selected
         stylesForTypes: {
             "video/webm": "urlSrc",
             "video/mp4": "urlSrc",
@@ -111,6 +110,7 @@ var fluid = fluid || {};
             "text/amarajson": "urlSrc",
             "JSONcc": "fileSrc"
         },
+        includeFilesAndLanguages: true, // the video source version of this form does not include file and languages
         invokers: {
             resetForm: {
                 funcName: "fluid.vpPlugin.trackForm.resetForm",
@@ -126,12 +126,16 @@ var fluid = fluid || {};
                 funcName: "fluid.vpPlugin.trackForm.injectPrompt",
                 args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
             }
-        },
-        includeFilesAndLanguages: true
+        }
     });
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackForm");
 
     /**
+     * Preface the dropdowns in the interface with the 'please select' prompts (if there is
+     * data in the list), or with the 'no files available' string if not. This information is
+     * not in the model of the list of available files, and so must be added to the drop-down
+     * after it is populated from the model.
+     * 
      * @param   that    the component
      * @param   data    either a  string pathname into the model, referencing the data in the model
      *                  OR an actual array of data
@@ -157,10 +161,6 @@ var fluid = fluid || {};
         }, {amalgamateClasses: ["template"]});        
     };
 
-    fluid.vpPlugin.trackForm.finalInit = function (that) {
-        that.applier.guards.addListener(that.options.modelPath + ".tracks", that.validateNewTrackList);
-    };
-
     fluid.vpPlugin.trackForm.resetForm = function (that) {
         fluid.each(that.model[that.options.modelPath].fields, function (entry) {
             that.applier.requestChange(that.options.modelPath + "." + entry, "");
@@ -175,6 +175,7 @@ var fluid = fluid || {};
             that.locate("type").toggle();
             that.locate("source").hide();
         });
+        that.applier.guards.addListener(that.options.modelPath + ".tracks", that.validateNewTrackList);
         that.applier.modelChanged.addListener(that.options.modelPath + ".type", function (newModel, oldModel, changeRequest) {
             if (!newModel[that.options.modelPath].type) {
                 return;
@@ -227,6 +228,10 @@ var fluid = fluid || {};
         return tree;
     };
 
+    /**
+     * Retrieves the new track data from model tied to the form, builds a new track object and
+     * adds it to the list of tracks.
+     */
     fluid.vpPlugin.trackForm.addTrack = function (that) {
         var media = that.model[that.options.modelPath];
         media.langLabel = $("option:selected", that.locate("lang")).text().trim();
@@ -239,6 +244,10 @@ var fluid = fluid || {};
         that.applier.requestChange(that.options.modelPath + ".tracks", trackList);
     };
 
+    /**
+     * Adds to the model the files that have been uploaded to the WordPress media library.
+     * This data is provided by the PHP code.
+     */
     fluid.vpPlugin.trackForm.addFilesAndLanguages = function (that) {
         if (that.options.includeFilesAndLanguages) {
             that.applier.requestChange(that.options.modelPath + ".fileUrls", phpVars[that.options.modelPath].fileUrls);
@@ -249,6 +258,10 @@ var fluid = fluid || {};
         }
     };
 
+    /**
+     * Modify the renderer protoTree to add the necessary subtree to render the file list dropdown.
+     * This subtree is not used for the video source version of the form.
+     */
     fluid.vpPlugin.trackForm.addFileSubtree = function (that, tree) {
         tree.fileTitle = that.options.strings.fileTitle;
         tree.fileLabel = that.options.strings.fileLabel;
@@ -259,6 +272,10 @@ var fluid = fluid || {};
         };
     };
 
+    /**
+     * Modify the renderer protoTree to add the necessary subtree to render the language dropdown.
+     * This subtree is not used for the video source version of the form.
+     */
     fluid.vpPlugin.trackForm.addLangSubtree = function (that, tree) {
         tree.langLabel = that.options.strings.langLabel;
         tree.lang = {
@@ -269,8 +286,9 @@ var fluid = fluid || {};
     };
 
     /******
-     * Form validation. These functions should fire events an event, and the event should
-     * trigger a class change on the relevant fields to add an 'invalid' indication.
+     * Form validation: Checks that the src field of the new entry is valid and that a language
+     * has been selected. Fires events that are used to show or hide form validation feedback.
+     * Returns boolean indicating validity of data.
      */
     fluid.vpPlugin.trackForm.validateNewTrackList = function (that, model, changeRequest) {
         var newList = changeRequest.value;
@@ -278,22 +296,26 @@ var fluid = fluid || {};
             return true;
         }
         var newEntry = newList[newList.length - 1];
-        var valid = true;
-        if (!newEntry.src || newEntry.src === "none") {
-            that.locate("url").addClass(that.options.styles.invalid);
-            that.locate("file").addClass(that.options.styles.invalid);
-            valid = false;
-        } else {
-            that.locate("url").removeClass(that.options.styles.invalid);
-            that.locate("file").removeClass(that.options.styles.invalid);
-        }
-        if (newEntry.srclang === "") {
-            that.locate("lang").addClass(that.options.styles.invalid);
-            valid = false;
-        } else {
-            that.locate("lang").removeClass(that.options.styles.invalid);
-        }
-        return valid;
+        var srcInvalid = (!newEntry.src || newEntry.src === "none");
+        that.events.invalidField.fire(that.locate("url"), that.options.styles.invalid, srcInvalid);
+        that.events.invalidField.fire(that.locate("file"), that.options.styles.invalid, srcInvalid);
+
+        var langInvalid = (newEntry.srclang === "");
+        that.events.invalidField.fire(that.locate("lang"), that.options.styles.invalid, langInvalid);
+
+        return (!srcInvalid && !langInvalid);
+    };
+    
+    /**
+     * Add or remove a CSS class to the specified field based on a flag.
+     * 
+     * @param {Object} field        jQuery object for the field to hightlight
+     * @param {Object} className    the string classname to use for the highlight
+     * @param {Object} flag         a boolean indicating whether or not the field should be highlighted
+     *                              If false, the hightlight style will be removed
+     */
+    fluid.vpPlugin.trackForm.highlightField = function (field, className, flag) {
+        field.toggleClass(className, flag);
     };
 
 })(jQuery);
