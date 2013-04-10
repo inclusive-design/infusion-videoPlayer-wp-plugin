@@ -55,6 +55,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                         mediaControls: phpVars.pluginUrl + phpVars.mediaTemplate
                     }
                 }
+            },
+            listeners: {
+                afterRender: fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire
             }
         };
         if (phpVars.showText) {
@@ -71,7 +74,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
         var uiOptions = fluid.uiOptions.fatPanel.withMediaPanel(".flc-uiOptions-fatPanel", opts);
         fluid.staticEnvironment.uiOptionsInstance = uiOptions;
-        fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire();
     };
 
     $("document").ready(function () {
