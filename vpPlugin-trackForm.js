@@ -24,24 +24,31 @@ var fluid = fluid || {};
     fluid.defaults("fluid.vpPlugin.trackForm", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         preInitFunction: "fluid.vpPlugin.trackForm.preInit",
+        finalInitFunction: "fluid.vpPlugin.trackForm.finalInit",
         model: {
-            format: "text/amarajson",
-            url: "Enter a valid url",
-            file: "pleaseSelect",
-            lang: "pleaseSelect"
+            type: "text/amarajson",
+            src: null,
+            srclang: null
         },
         events: {
-            onAddTrack: null,
+            onAddTrack: "preventable",
             afterTrackAdded: null,
             invalidField: null
         },
         listeners: {
             onAddTrack: {
-                listener: "fluid.vpPlugin.trackForm.addTrack",
+                listener: "fluid.vpPlugin.trackForm.validateForm",
+                args: "{trackForm}",
+                priority: "first"
+            },
+            afterTrackAdded: {
+                listener: "fluid.vpPlugin.trackForm.resetForm",
                 args: "{trackForm}"
             },
             invalidField: "fluid.vpPlugin.trackForm.highlightField",
-            afterRender: "fluid.vpPlugin.trackForm.bindDOMEvents"
+            afterRender: "fluid.vpPlugin.trackForm.bindDOMEvents",
+            onCreate: "fluid.vpPlugin.trackForm.hideForm"
+
         },
         selectors: {
             add: ".vppc-trackForm-add",
@@ -71,7 +78,6 @@ var fluid = fluid || {};
             fileTitle: "Add File",
             fileLabel: "Choose File:",
             langLabel: "Language:",
-            pleaseSelect: "Please select...",
             none: "No files yet",
             fileHelp: "Files must first be uploaded to the Media Library"
         },
@@ -98,49 +104,16 @@ var fluid = fluid || {};
             languageCodes: ["ar", "cs", "nl", "en", "fr", "de", "el", "hi", "ja", "pt", "pa", "ru", "zh", "es", "sv"],
             types: ["text/amarajson", "JSONcc"],
             typeLabels: ["Amara", "JSON"]
-        },
-        invokers: {
-            validateNewTrackList: {
-                funcName: "fluid.vpPlugin.trackForm.validateNewTrackList",
-                args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
-            },
-            injectPrompt: {
-                funcName: "fluid.vpPlugin.trackForm.injectPrompt",
-                args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
-            }
         }
     });
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackForm");
 
-    /**
-     * Preface the dropdowns in the interface with the 'please select' prompts (if there is
-     * data in the list), or with the 'no files available' string if not. This information is
-     * not in the model of the list of available files, and so must be added to the drop-down
-     * after it is populated from the model.
-     * 
-     * @param   that    the component
-     * @param   data    either a  string pathname into the model, referencing the data in the model
-     *                  OR an actual array of data
-     * @param   name    either a  string pathname into the model, referencing the names in the model
-     *                  OR an actual array of names
-     */
-    fluid.vpPlugin.trackForm.injectPrompt = function (that, data, name) {
-        var dataArray = typeof data === "string" ? that.model[that.options.modelPath][data] : data;
-        var namesArray = typeof name === "string" ? that.model[that.options.modelPath][name] : name;
-
-        if (dataArray.length > 0) {
-            dataArray.splice(0, 0, "pleaseSelect");
-            namesArray.splice(0, 0, that.options.strings.pleaseSelect);
-        } else {
-            dataArray.splice(0, 0, "none");
-            namesArray.splice(0, 0, that.options.strings.none);
-        }
-    };
-
     fluid.vpPlugin.trackForm.preInit = function (that) {
         fluid.fetchResources({}, function (resourceSpec) {
             that.refreshView();
-        }, {amalgamateClasses: ["template"]});        
+            that.locate("source").hide();
+        }, {amalgamateClasses: ["template"]});
+        that.options.initialType = that.model.type;
     };
 
     fluid.vpPlugin.trackForm.bindDOMEvents = function (that) {
@@ -148,27 +121,40 @@ var fluid = fluid || {};
             that.locate("source").toggle();
         });
 // TODO: This will have to be moved into trackList
-        that.applier.guards.addListener(that.options.modelPath + ".tracks", that.validateNewTrackList);
-        that.applier.modelChanged.addListener("format", function (newModel, oldModel, changeRequest) {
-            if (!newModel.format) {
+        that.applier.modelChanged.addListener("type", function (newModel, oldModel, changeRequest) {
+            if (!newModel.type) {
                 return;
             }
             that.refreshView();
         });
 
+        that.applier.modelChanged.addListener("srclang", function (newModel, oldModel, changeRequest) {
+            var langLabel = fluid.find(that.options.supportedValues.languageCodes, function (object, index) {
+                if (object === newModel.srclang) {
+                    return that.options.supportedValues.languageNames[index];
+                }
+            });
+            that.applier.requestChange("langLabel", langLabel);
+        });
         that.locate("cancel").click(function () {
             // TODO: clear the model here, so next form is empty??
             that.locate("source").hide();
         });
 
         that.locate("done").click(function () {
-            // TODO: should clear the model here, so next form is empty
-            // TODO: Need to build up data to pass, instead of 'that', so trackList can add the track
-            that.events.onAddTrack.fire(that);
+            that.events.onAddTrack.fire(that.model);
         });
-        that.events.afterTrackAdded.addListener(function () {
-            that.locate("source").hide();
-        });
+    };
+
+    fluid.vpPlugin.trackForm.hideForm = function (that) {
+        that.locate("source").hide();
+    };
+
+    fluid.vpPlugin.trackForm.resetForm = function (that) {
+        that.applier.requestChange("type", that.options.initialType);
+        that.applier.requestChange("src", null);
+        that.applier.requestChange("srclang", null);
+        that.refreshView();
         that.locate("source").hide();
     };
 
@@ -185,20 +171,20 @@ var fluid = fluid || {};
                 inputID: "typeInput",
                 selectID: fluid.allocateGuid(),
                 tree: {
-                    selection: "${format}",
+                    selection: "${type}",
                     optionlist: that.options.supportedValues.types,
                     optionnames: that.options.supportedValues.typeLabels
                 }
             }];
         } else {
             tree.typeSelect = {
-                selection: "${format}",
+                selection: "${type}",
                 optionlist: that.options.supportedValues.types,
                 optionnames:  that.options.supportedValues.typeLabels
             };
         }
 
-        if (that.model.format === "text/amarajson" || !that.options.fileUrls) {
+        if (that.model.type === "text/amarajson" || !that.options.fileUrls) {
             tree.urlTitle = that.options.strings.urlTitle;
             tree.urlLabel = that.options.strings.urlLabel;
             tree.url = "${src}";
@@ -206,6 +192,7 @@ var fluid = fluid || {};
         } else {
             tree.fileTitle = that.options.strings.fileTitle;
             tree.fileLabel = that.options.strings.fileLabel;
+
             tree.file = {
                 selection: "${src}",
                 optionlist: that.options.fileUrls,
@@ -217,7 +204,7 @@ var fluid = fluid || {};
         if (that.options.supportedValues.languageCodes) {
             tree.langLabel = that.options.strings.langLabel;
             tree.lang = {
-                selection: "${lang}",
+                selection: "${srclang}",
                 optionlist: that.options.supportedValues.languageCodes,
                 optionnames: that.options.supportedValues.languageNames
             };
@@ -226,38 +213,17 @@ var fluid = fluid || {};
         return tree;
     };
 
-    /**
-     * Retrieves the new track data from model tied to the form, builds a new track object and
-     * adds it to the list of tracks.
-     */
-    fluid.vpPlugin.trackForm.addTrack = function (that) {
-        var media = that.model[that.options.modelPath];
-        media.langLabel = $("option:selected", that.locate("lang")).text().trim();
-        var trackList = fluid.copy(media.tracks);
-        var newEntry = {};
-        fluid.each(media.fields, function (entry) {
-            newEntry[entry] = media[entry];
-        });
-        trackList.push(newEntry);
-        that.applier.requestChange(that.options.modelPath + ".tracks", trackList);
-    };
-
     /******
      * Form validation: Checks that the src field of the new entry is valid and that a language
      * has been selected. Fires events that are used to show or hide form validation feedback.
      * Returns boolean indicating validity of data.
      */
-    fluid.vpPlugin.trackForm.validateNewTrackList = function (that, model, changeRequest) {
-        var newList = changeRequest.value;
-        if (newList.length === 0) {
-            return true;
-        }
-        var newEntry = newList[newList.length - 1];
-        var srcInvalid = (!newEntry.src || newEntry.src === "none");
+    fluid.vpPlugin.trackForm.validateForm = function (that) {
+        var srcInvalid = (!that.model.src || that.model.src === "none");
         that.events.invalidField.fire(that.locate("url"), that.options.styles.invalid, srcInvalid);
         that.events.invalidField.fire(that.locate("file"), that.options.styles.invalid, srcInvalid);
 
-        var langInvalid = (newEntry.srclang === "");
+        var langInvalid = (that.model.srclang === "");
         that.events.invalidField.fire(that.locate("lang"), that.options.styles.invalid, langInvalid);
 
         return (!srcInvalid && !langInvalid);

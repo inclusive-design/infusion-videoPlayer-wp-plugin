@@ -26,19 +26,16 @@ var fluid = fluid || {};
         finalInitFunction: "fluid.vpPlugin.finalInit",
         model: {
             sources: {
-                tracks: [],
-                fields: ["src", "type"]
+                tracks: []
             },
             captions: {
                 tracks: [],
-                fields: ["src", "type", "srclang", "langLabel"],
                 src: "",
                 srcLang: "",
                 lang: ""                
             },
             transcripts: {
                 tracks: [],
-                fields: ["src", "type", "srclang", "langLabel"],
                 src: "",
                 srcLang: "",
                 file: "",
@@ -62,7 +59,7 @@ var fluid = fluid || {};
                 container: ".vppc-videoForm",
                 options: {
                     model: {
-                        format: "video/webm"
+                        type: "video/mp4"
                     },
                     strings: {
                         title: "Video Sources",
@@ -73,6 +70,9 @@ var fluid = fluid || {};
                         languageNames: null,
                         types: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
                         typeLabels: ["WEBM", "MP4", "OGG", "OGV", "YouTube"]
+                    },
+                    invokers: {
+                        injectPromt: "fluid.identity"
                     }
                 }
             },
@@ -82,7 +82,12 @@ var fluid = fluid || {};
                 options: {
                     model: "{vpPlugin}.model",
                     applier:  "{vpPlugin}.applier",
-                    modelPath: "sources"
+                    events: {
+                        onAddTrack: "{videoForm}.events.onAddTrack",
+                        afterTrackAdded: "{videoForm}.events.afterTrackAdded"
+                    },
+                    modelPath: "sources",
+                    fields: ["src", "type"]
                 }
             },
             captionForm: {
@@ -112,7 +117,12 @@ var fluid = fluid || {};
                 options: {
                     model: "{vpPlugin}.model",
                     applier:  "{vpPlugin}.applier",
-                    modelPath: "captions"
+                    events: {
+                        onAddTrack: "{captionForm}.events.onAddTrack",
+                        afterTrackAdded: "{captionForm}.events.afterTrackAdded"
+                    },
+                    modelPath: "captions",
+                    fields: ["src", "type", "srclang", "langLabel"]
                 }
             },
             transcriptForm: {
@@ -134,7 +144,12 @@ var fluid = fluid || {};
                 options: {
                     model: "{vpPlugin}.model",
                     applier:  "{vpPlugin}.applier",
-                    modelPath: "transcripts"
+                    events: {
+                        onAddTrack: "{transcriptForm}.events.onAddTrack",
+                        afterTrackAdded: "{transcriptForm}.events.afterTrackAdded"
+                    },
+                    modelPath: "transcripts",
+                    fields: ["src", "type", "srclang", "langLabel"]
                 }
             }
         }
@@ -193,5 +208,4 @@ var fluid = fluid || {};
         shortCodeString += " uiosetting='" + phpVars.addUIOsetting + "']\n";
         parent.send_to_editor(shortCodeString);
     };
-
 })(jQuery);

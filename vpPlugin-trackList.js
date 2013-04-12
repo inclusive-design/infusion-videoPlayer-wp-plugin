@@ -33,6 +33,16 @@ var fluid = fluid || {};
                 tracks: []
             }
         },
+        events: {
+            onAddTrack: null,
+            afterTrackAdded: null
+        },
+        listeners: {
+            onAddTrack: {
+                listener: "fluid.vpPlugin.trackList.addTrack",
+                args: ["{trackList}", "{arguments}.0"]
+            }
+        },
         selectors: {
             row: ".vppc-trackList-trackRow"
         },
@@ -49,7 +59,14 @@ var fluid = fluid || {};
                 fetchClass: "template"
             }
         },
-        modelPath: "mediaType"
+        invokers: {
+            updateListView: {
+                funcName: "fluid.vpPlugin.trackList.updateListView",
+                args: ["{trackList}", "{arguments}.0", "{arguments}.1", "{arguments}.2"]
+            }
+        },
+        modelPath: "mediaType",
+        fields: []
     });
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackList");
 
@@ -60,7 +77,14 @@ var fluid = fluid || {};
     };
 
     fluid.vpPlugin.trackList.finalInit = function (that) {
-        that.applier.modelChanged.addListener(that.options.modelPath + ".tracks", that.refreshView);
+        that.applier.modelChanged.addListener(that.options.modelPath + ".tracks", that.updateListView);
+    };
+
+    fluid.vpPlugin.trackList.updateListView = function (that, newModel, oldModel, changeRequest) {
+        if (newModel[that.options.modelPath].tracks.length === (oldModel[that.options.modelPath].tracks.length + 1)) {
+            that.events.afterTrackAdded.fire();
+        }
+        that.refreshView();
     };
 
     fluid.vpPlugin.trackList.produceTree = function (that) {
@@ -78,13 +102,24 @@ var fluid = fluid || {};
                             model: that.model,
                             applier: that.applier,
                             modelPath: that.options.modelPath,
-                            trackPath: "{track}"
+                            trackPath: "{track}",
+                            fields: that.options.fields
                         }
                     }]
                 }
             }]
         };
         return tree;
+    };
+
+    fluid.vpPlugin.trackList.addTrack = function (that, trackData) {
+        var trackList = fluid.copy(that.model[that.options.modelPath].tracks);
+        var newTrack = {};
+        fluid.each(that.options.fields, function (field) {
+            newTrack[field] = trackData[field];
+        });
+        trackList.push(newTrack);
+        that.applier.requestChange(that.options.modelPath + ".tracks", trackList);
     };
 
     /**********************************************************
@@ -130,7 +165,7 @@ var fluid = fluid || {};
                 }]
             }
         };
-        fluid.each(fluid.get(that.model, that.options.modelPath).fields, function (field, index) {
+        fluid.each(that.options.fields, function (field, index) {
             tree[field] = {
                 value: fluid.get(that.model, that.options.trackPath)[field]
             };
