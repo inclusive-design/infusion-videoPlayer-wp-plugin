@@ -24,11 +24,10 @@ var fluid = fluid || {};
     fluid.defaults("fluid.vpPlugin.trackForm", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         preInitFunction: "fluid.vpPlugin.trackForm.preInit",
-        finalInitFunction: "fluid.vpPlugin.trackForm.finalInit",
         model: {
             type: "text/amarajson",
             src: null,
-            srclang: null
+            srclang: "none"
         },
         events: {
             onAddTrack: "preventable",
@@ -100,10 +99,16 @@ var fluid = fluid || {};
             }
         },
         supportedValues: {
-            languageNames: ["Arabic", "Czech", "Dutch", "English", "French", "German", "Greek", "Hindi", "Japanese", "Portuguese", "Punjabi", "Russian", "Mandarin", "Spanish", "Swedish"],
-            languageCodes: ["ar", "cs", "nl", "en", "fr", "de", "el", "hi", "ja", "pt", "pa", "ru", "zh", "es", "sv"],
+            languageNames: ["Select lanaguage...", "Arabic", "Czech", "Dutch", "English", "French", "German", "Greek", "Hindi", "Japanese", "Portuguese", "Punjabi", "Russian", "Mandarin", "Spanish", "Swedish"],
+            languageCodes: ["none", "ar", "cs", "nl", "en", "fr", "de", "el", "hi", "ja", "pt", "pa", "ru", "zh", "es", "sv"],
             types: ["text/amarajson", "JSONcc"],
             typeLabels: ["Amara", "JSON"]
+        },
+        invokers: {
+            resetForm: {
+                funcName: "fluid.vpPlugin.trackForm.resetForm",
+                args: "{trackForm}"
+            }
         }
     });
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackForm");
@@ -120,7 +125,7 @@ var fluid = fluid || {};
         that.locate("add").click(function () {
             that.locate("source").toggle();
         });
-// TODO: This will have to be moved into trackList
+
         that.applier.modelChanged.addListener("type", function (newModel, oldModel, changeRequest) {
             if (!newModel.type) {
                 return;
@@ -138,7 +143,7 @@ var fluid = fluid || {};
         });
         that.locate("cancel").click(function () {
             // TODO: clear the model here, so next form is empty??
-            that.locate("source").hide();
+            that.resetForm();
         });
 
         that.locate("done").click(function () {
@@ -153,7 +158,7 @@ var fluid = fluid || {};
     fluid.vpPlugin.trackForm.resetForm = function (that) {
         that.applier.requestChange("type", that.options.initialType);
         that.applier.requestChange("src", null);
-        that.applier.requestChange("srclang", null);
+        that.applier.requestChange("srclang", "none");
         that.refreshView();
         that.locate("source").hide();
     };
@@ -223,7 +228,7 @@ var fluid = fluid || {};
         that.events.invalidField.fire(that.locate("url"), that.options.styles.invalid, srcInvalid);
         that.events.invalidField.fire(that.locate("file"), that.options.styles.invalid, srcInvalid);
 
-        var langInvalid = (that.model.srclang === "");
+        var langInvalid = (that.model.srclang === "none");
         that.events.invalidField.fire(that.locate("lang"), that.options.styles.invalid, langInvalid);
 
         return (!srcInvalid && !langInvalid);

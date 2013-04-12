@@ -154,10 +154,16 @@ class infusion_video_player {
 		if (count($php_vars['captions']['fileNames']) == 0) {
 			$php_vars['captions']['fileUrls'] = array("none");
 			$php_vars['captions']['fileNames'] = array("No files yet");
+		} else {
+			array_splice($php_vars['captions']['fileUrls'], 0, 0, "none");
+			array_splice($php_vars['captions']['fileNames'], 0, 0, "Select file...");
 		}
 		if (count($php_vars['transcripts']['fileNames']) == 0) {
 			$php_vars['transcripts']['fileUrls'] = array("none");
 			$php_vars['transcripts']['fileNames'] = array("No files yet");
+		} else {
+			array_splice($php_vars['transcripts']['fileUrls'], 0, 0, "none");
+			array_splice($php_vars['transcripts']['fileNames'], 0, 0, "Select file...");
 		}
 
 		wp_localize_script( 'vpPlugin_mainScript', 'phpVars', $php_vars );
