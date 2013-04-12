@@ -1,33 +1,36 @@
 <div class="vpp-trackForm-header">
-    <span class="vppc-trackForm-title vpp-trackForm-title"></span>
+    <span class="vppc-trackForm-title vpp-trackForm-title">form title here</span>
     <button class="vppc-trackForm-add vpp-trackForm-add">+</button>
 </div>
 
 <div class="vppc-trackForm-source vpp-trackForm-source">
     <div class="vppc-trackForm-type vpp-trackForm-type">
         <div class="vppc-trackForm-typeRow vpp-trackForm-typeRow">
-            <input type="radio" class="vppc-trackForm-typeInput" id="vppc-trackForm-typeInput" name="foofer"/>
+            <input type="radio" class="vppc-trackForm-typeInput" id="vppc-trackForm-typeInput"/>
             <label class="vppc-trackForm-typeLabel" for="vppc-trackForm-typeInput">radio</label>
         </div>
+        <select id="vppc-trackForm-typeSelect" class="vppc-trackForm-typeSelect">
+            <option value="">source type</option>
+        </select>
     </div>
 
     <div class="vpp-trackForm-urlSrc">
-        <div class="vppc-trackForm-urlSrcTitle"></div>
-        <label for="vppc-trackForm-url">Link:</label>
+        <div class="vppc-trackForm-urlSrcTitle">add form title here</div>
+        <label class="vpcc-trackForm-urlLabel" for="vppc-trackForm-url">label for text field input here</label>
         <span class="vpp-trackForm-inputHelp">
             <input type="text" id="vppc-trackForm-url" class="vppc-trackForm-url" />
-            <p class="help">Enter a valid URL</p>
+            <p class="vpcc-trackForm-urlHelp help">help for url field</p>
         </span>
     </div>
 
     <div class="vpp-trackForm-fileSrc">
         <div class="vppc-trackForm-fileSrcTitle"></div>
-        <label  for="vppc-trackForm-filename" class="vppc-trackForm-fileLabel"></label>
+        <label for="vppc-trackForm-filename" class="vppc-trackForm-fileLabel">label for file drop-down</label>
         <span class="vpp-trackForm-inputHelp">
             <select id="vppc-trackForm-filename" class="vppc-trackForm-filename">
                 <option value="">file list not loaded yet</option>
             </select>
-            <p class="vppc-trackForm-filenameHelp help">Files must first be uploaded<br/>to the Media Library</p>
+            <p class="vppc-trackForm-filenameHelp help">help for file dropdown</p>
         </span>
     </div>
 

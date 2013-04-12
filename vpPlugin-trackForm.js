@@ -51,8 +51,11 @@ var fluid = fluid || {};
             typeRow: ".vppc-trackForm-typeRow",
             typeInput: ".vppc-trackForm-typeInput",
             typeLabel: ".vppc-trackForm-typeLabel",
+            typeSelect: ".vppc-trackForm-typeSelect",
             urlTitle: ".vppc-trackForm-urlSrcTitle",
+            urlLabel: ".vpcc-trackForm-urlLabel",
             url: ".vppc-trackForm-url",
+            urlHelp: ".vpcc-trackForm-urlHelp",
             fileTitle: ".vppc-trackForm-fileSrcTitle",
             fileLabel: ".vppc-trackForm-fileLabel",
             file: ".vppc-trackForm-filename",
@@ -64,11 +67,13 @@ var fluid = fluid || {};
         },
         strings: {
             urlTitle: "Add Amara File",
+            urlHelp: "Enter a valid URL",
             fileTitle: "Add File",
             fileLabel: "Choose File:",
             langLabel: "Language:",
             pleaseSelect: "Please select...",
-            none: "No files yet"
+            none: "No files yet",
+            fileHelp: "Files must first be uploaded to the Media Library"
         },
         styles: {
             urlSrc: "vpp-trackForm-urlSrc",
@@ -76,7 +81,7 @@ var fluid = fluid || {};
             invalid: "vpp-trackForm-invalid"
         },
         repeatingSelectors: ["typeRow"],
-        selectorsToIgnore: ["add", "source", "type", "cancel", "done", "fileHelp"],
+        selectorsToIgnore: ["add", "source", "type", "cancel", "done"],
         produceTree: "fluid.vpPlugin.trackForm.produceTree",
         rendererOptions: {
             autoBind: true
@@ -158,18 +163,22 @@ var fluid = fluid || {};
 
         that.locate("done").click(function () {
             // TODO: should clear the model here, so next form is empty
+            // TODO: Need to build up data to pass, instead of 'that', so trackList can add the track
             that.events.onAddTrack.fire(that);
         });
-        that.applier.modelChanged.addListener(that.options.modelPath + ".tracks", that.events.afterTrackAdded.fire);
         that.events.afterTrackAdded.addListener(function () {
             that.locate("source").hide();
         });
+        that.locate("source").hide();
     };
 
     fluid.vpPlugin.trackForm.produceTree = function (that) {
-        var tree = {
-            title: that.options.strings.title,
-            expander: [{
+        var tree = {};
+        
+        tree.title = that.options.strings.title;
+        
+        if (that.options.fileUrls) {
+            tree.expander = [{
                 type: "fluid.renderer.selection.inputs",
                 rowID: "typeRow",
                 labelID: "typeLabel",
@@ -180,12 +189,20 @@ var fluid = fluid || {};
                     optionlist: that.options.supportedValues.types,
                     optionnames: that.options.supportedValues.typeLabels
                 }
-            }]
-        };
+            }];
+        } else {
+            tree.typeSelect = {
+                selection: "${format}",
+                optionlist: that.options.supportedValues.types,
+                optionnames:  that.options.supportedValues.typeLabels
+            };
+        }
 
         if (that.model.format === "text/amarajson" || !that.options.fileUrls) {
             tree.urlTitle = that.options.strings.urlTitle;
+            tree.urlLabel = that.options.strings.urlLabel;
             tree.url = "${src}";
+            tree.urlHelp = that.options.strings.urlHelp;
         } else {
             tree.fileTitle = that.options.strings.fileTitle;
             tree.fileLabel = that.options.strings.fileLabel;
@@ -194,6 +211,7 @@ var fluid = fluid || {};
                 optionlist: that.options.fileUrls,
                 optionnames:  that.options.fileNames
             };
+            tree.fileHelp = that.options.strings.fileHelp;
         }
 
         if (that.options.supportedValues.languageCodes) {
