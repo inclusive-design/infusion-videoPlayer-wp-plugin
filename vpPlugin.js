@@ -70,9 +70,6 @@ var fluid = fluid || {};
                         languageNames: null,
                         types: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
                         typeLabels: ["WEBM", "MP4", "OGG", "OGV", "YouTube"]
-                    },
-                    invokers: {
-                        injectPromt: "fluid.identity"
                     }
                 }
             },
@@ -102,10 +99,6 @@ var fluid = fluid || {};
                     supportedValues: {
                         types: ["text/amarajson", "text/vtt"],
                         typeLabels: ["Amara", "VTT"]
-                    },
-                    stylesForTypes: {
-                        "text/amarajson": "urlSrc",
-                        "text/vtt": "fileSrc"
                     },
                     fileUrls: phpVars.captions.fileUrls,
                     fileNames: phpVars.captions.fileNames

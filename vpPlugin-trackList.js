@@ -48,10 +48,6 @@ var fluid = fluid || {};
         },
         repeatingSelectors: ["row"],
         produceTree: "fluid.vpPlugin.trackList.produceTree",
-        rendererOptions: {
-//            debugMode: true,
-            autoBind: true
-        },
         resources: {
             template: {
                 forceCache: true,
@@ -59,14 +55,14 @@ var fluid = fluid || {};
                 fetchClass: "template"
             }
         },
+        modelPath: "mediaType",
+        fields: [],
         invokers: {
             updateListView: {
                 funcName: "fluid.vpPlugin.trackList.updateListView",
                 args: ["{trackList}", "{arguments}.0", "{arguments}.1", "{arguments}.2"]
             }
-        },
-        modelPath: "mediaType",
-        fields: []
+        }
     });
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackList");
 
@@ -148,11 +144,7 @@ var fluid = fluid || {};
 
         renderOnInit: true,
         repeatingSelectors: ["column"],
-        produceTree: "fluid.vpPlugin.trackList.columns.produceTree",
-        rendererOptions: {
-//            debugMode: true,
-            autoBind: true
-        }
+        produceTree: "fluid.vpPlugin.trackList.columns.produceTree"
     });
 
     fluid.vpPlugin.trackList.columns.produceTree = function (that) {

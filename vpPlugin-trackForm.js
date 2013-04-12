@@ -45,7 +45,7 @@ var fluid = fluid || {};
                 args: "{trackForm}"
             },
             invalidField: "fluid.vpPlugin.trackForm.highlightField",
-            afterRender: "fluid.vpPlugin.trackForm.bindDOMEvents",
+            afterRender: "fluid.vpPlugin.trackForm.bindEventHandlers",
             onCreate: "fluid.vpPlugin.trackForm.hideForm"
 
         },
@@ -88,9 +88,6 @@ var fluid = fluid || {};
         repeatingSelectors: ["typeRow"],
         selectorsToIgnore: ["add", "source", "type", "cancel", "done"],
         produceTree: "fluid.vpPlugin.trackForm.produceTree",
-        rendererOptions: {
-            autoBind: true
-        },
         resources: {
             template: {
                 forceCache: true,
@@ -121,7 +118,7 @@ var fluid = fluid || {};
         that.options.initialType = that.model.type;
     };
 
-    fluid.vpPlugin.trackForm.bindDOMEvents = function (that) {
+    fluid.vpPlugin.trackForm.bindEventHandlers = function (that) {
         that.locate("add").click(function () {
             that.locate("source").toggle();
         });
@@ -142,7 +139,6 @@ var fluid = fluid || {};
             that.applier.requestChange("langLabel", langLabel);
         });
         that.locate("cancel").click(function () {
-            // TODO: clear the model here, so next form is empty??
             that.resetForm();
         });
 
@@ -164,9 +160,9 @@ var fluid = fluid || {};
     };
 
     fluid.vpPlugin.trackForm.produceTree = function (that) {
-        var tree = {};
-        
-        tree.title = that.options.strings.title;
+        var tree = {
+            title: that.options.strings.title
+        };
         
         if (that.options.fileUrls) {
             tree.expander = [{
@@ -228,7 +224,7 @@ var fluid = fluid || {};
         that.events.invalidField.fire(that.locate("url"), that.options.styles.invalid, srcInvalid);
         that.events.invalidField.fire(that.locate("file"), that.options.styles.invalid, srcInvalid);
 
-        var langInvalid = (that.model.srclang === "none");
+        var langInvalid = ((that.locate("lang").length > 0) && (that.model.srclang === "none"));
         that.events.invalidField.fire(that.locate("lang"), that.options.styles.invalid, langInvalid);
 
         return (!srcInvalid && !langInvalid);
