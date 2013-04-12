@@ -15,12 +15,10 @@
     font-weight: bold;
 }
 .vpp-trackForm-type {
-    border: 1px solid #DFDFDF;
-    border-radius: 3px;
+    padding: 0.5em;
+}
+.vpp-trackForm-typeRow {
     display: inline-block;
-    float: right;
-    margin-right: 35%;
-    margin-top: 2em;
 }
 .vpp-trackList {
     border: 1px solid #DFDFDF;

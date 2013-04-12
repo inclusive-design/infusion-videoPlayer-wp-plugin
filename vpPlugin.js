@@ -61,18 +61,19 @@ var fluid = fluid || {};
                 type: "fluid.vpPlugin.trackForm",
                 container: ".vppc-videoForm",
                 options: {
-                    model: "{vpPlugin}.model",
-                    applier:  "{vpPlugin}.applier",
-                    modelPath: "sources",
+                    model: {
+                        format: "video/webm"
+                    },
                     strings: {
                         title: "Video Sources",
                         urlTitle: "Add Video"
                     },
                     supportedValues: {
+                        languageCodes: null,
+                        languageNames: null,
                         types: ["video/webm", "video/mp4", "video/ogg", "video/ogv", "video/youtube"],
                         typeLabels: ["WEBM", "MP4", "OGG", "OGV", "YouTube"]
-                    },
-                    includeFilesAndLanguages: false
+                    }
                 }
             },
             videoList: {
@@ -88,9 +89,6 @@ var fluid = fluid || {};
                 type: "fluid.vpPlugin.trackForm",
                 container: ".vppc-captionForm",
                 options: {
-                    model: "{vpPlugin}.model",
-                    applier:  "{vpPlugin}.applier",
-                    modelPath: "captions",
                     strings: {
                         title: "Captions",
                         fileTitle: "Add WebVTT Caption",
@@ -103,7 +101,9 @@ var fluid = fluid || {};
                     stylesForTypes: {
                         "text/amarajson": "urlSrc",
                         "text/vtt": "fileSrc"
-                    }
+                    },
+                    fileUrls: phpVars.captions.fileUrls,
+                    fileNames: phpVars.captions.fileNames
                 }
             },
             captionList: {
@@ -119,14 +119,13 @@ var fluid = fluid || {};
                 type: "fluid.vpPlugin.trackForm",
                 container: ".vppc-transcriptForm",
                 options: {
-                    model: "{vpPlugin}.model",
-                    applier:  "{vpPlugin}.applier",
-                    modelPath: "transcripts",
                     strings: {
                         title: "Transcripts",
                         fileTitle: "Add JSON-CC Transcript",
                         fileLabel: "Choose Transcript:"
-                    }
+                    },
+                    fileUrls: phpVars.transcripts.fileUrls,
+                    fileNames: phpVars.transcripts.fileNames
                 }
             },
             transcriptList: {

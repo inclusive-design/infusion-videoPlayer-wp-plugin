@@ -25,11 +25,10 @@ var fluid = fluid || {};
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         preInitFunction: "fluid.vpPlugin.trackForm.preInit",
         model: {
-            mediaType: {
-                url: "test url",
-                file: "pleaseSelect",
-                lang: "pleaseSelect"
-            }
+            format: "text/amarajson",
+            url: "Enter a valid url",
+            file: "pleaseSelect",
+            lang: "pleaseSelect"
         },
         events: {
             onAddTrack: null,
@@ -37,10 +36,6 @@ var fluid = fluid || {};
             invalidField: null
         },
         listeners: {
-            onCreate: {
-                listener: "fluid.vpPlugin.trackForm.addFilesAndLanguages",
-                args: "{trackForm}"
-            },
             onAddTrack: {
                 listener: "fluid.vpPlugin.trackForm.addTrack",
                 args: "{trackForm}"
@@ -93,31 +88,13 @@ var fluid = fluid || {};
                 fetchClass: "template"
             }
         },
-        modelPath: "mediaType",
         supportedValues: {
             languageNames: ["Arabic", "Czech", "Dutch", "English", "French", "German", "Greek", "Hindi", "Japanese", "Portuguese", "Punjabi", "Russian", "Mandarin", "Spanish", "Swedish"],
             languageCodes: ["ar", "cs", "nl", "en", "fr", "de", "el", "hi", "ja", "pt", "pa", "ru", "zh", "es", "sv"],
             types: ["text/amarajson", "JSONcc"],
             typeLabels: ["Amara", "JSON"]
         },
-        // this style is used to show/hide different versions of the form based on the type of media selected
-        stylesForTypes: {
-            "video/webm": "urlSrc",
-            "video/mp4": "urlSrc",
-            "video/ogg": "urlSrc",
-            "video/ogv": "urlSrc",
-            "video/youtube": "urlSrc",
-            "text/amarajson": "urlSrc",
-            "JSONcc": "fileSrc"
-        },
-        includeFilesAndLanguages: true, // the video source version of this form does not include file and languages
         invokers: {
-            resetForm: {
-                funcName: "fluid.vpPlugin.trackForm.resetForm",
-                args: ["{trackForm}"]
-            },
-            addFileSubtree: "fluid.vpPlugin.trackForm.addFileSubtree",
-            addLangSubtree: "fluid.vpPlugin.trackForm.addLangSubtree",
             validateNewTrackList: {
                 funcName: "fluid.vpPlugin.trackForm.validateNewTrackList",
                 args: ["{trackForm}", "{arguments}.0", "{arguments}.1"]
@@ -157,48 +134,35 @@ var fluid = fluid || {};
 
     fluid.vpPlugin.trackForm.preInit = function (that) {
         fluid.fetchResources({}, function (resourceSpec) {
-            that.resetForm();
+            that.refreshView();
         }, {amalgamateClasses: ["template"]});        
-    };
-
-    fluid.vpPlugin.trackForm.resetForm = function (that) {
-        fluid.each(that.model[that.options.modelPath].fields, function (entry) {
-            that.applier.requestChange(that.options.modelPath + "." + entry, "");
-        });
-        that.refreshView();
-        that.locate("type").hide();
-        that.locate("source").hide();
     };
 
     fluid.vpPlugin.trackForm.bindDOMEvents = function (that) {
         that.locate("add").click(function () {
-            that.locate("type").toggle();
-            that.locate("source").hide();
+            that.locate("source").toggle();
         });
+// TODO: This will have to be moved into trackList
         that.applier.guards.addListener(that.options.modelPath + ".tracks", that.validateNewTrackList);
-        that.applier.modelChanged.addListener(that.options.modelPath + ".type", function (newModel, oldModel, changeRequest) {
-            if (!newModel[that.options.modelPath].type) {
+        that.applier.modelChanged.addListener("format", function (newModel, oldModel, changeRequest) {
+            if (!newModel.format) {
                 return;
             }
-            that.locate("type").hide();
-            var sourceForm = that.locate("source");
-            fluid.each(that.options.stylesForTypes, function (value, key) {
-                sourceForm.removeClass(that.options.styles[value]);
-            });
-            sourceForm.addClass(that.options.styles[that.options.stylesForTypes[newModel[that.options.modelPath].type]]);
-            sourceForm.show();
+            that.refreshView();
         });
 
         that.locate("cancel").click(function () {
-            that.resetForm();
+            // TODO: clear the model here, so next form is empty??
+            that.locate("source").hide();
         });
 
         that.locate("done").click(function () {
+            // TODO: should clear the model here, so next form is empty
             that.events.onAddTrack.fire(that);
         });
         that.applier.modelChanged.addListener(that.options.modelPath + ".tracks", that.events.afterTrackAdded.fire);
         that.events.afterTrackAdded.addListener(function () {
-            that.resetForm();
+            that.locate("source").hide();
         });
     };
 
@@ -210,21 +174,37 @@ var fluid = fluid || {};
                 rowID: "typeRow",
                 labelID: "typeLabel",
                 inputID: "typeInput",
-                selectID: that.options.modelPath + "Type",
+                selectID: fluid.allocateGuid(),
                 tree: {
-                    selection: "${" + that.options.modelPath + ".type}",
+                    selection: "${format}",
                     optionlist: that.options.supportedValues.types,
                     optionnames: that.options.supportedValues.typeLabels
                 }
-            }],
-            urlTitle: that.options.strings.urlTitle,
-            url: "${" + that.options.modelPath + ".src}"
+            }]
         };
 
-        if (that.options.includeFilesAndLanguages) {
-            that.addFileSubtree(that, tree);
-            that.addLangSubtree(that, tree);
+        if (that.model.format === "text/amarajson" || !that.options.fileUrls) {
+            tree.urlTitle = that.options.strings.urlTitle;
+            tree.url = "${src}";
+        } else {
+            tree.fileTitle = that.options.strings.fileTitle;
+            tree.fileLabel = that.options.strings.fileLabel;
+            tree.file = {
+                selection: "${src}",
+                optionlist: that.options.fileUrls,
+                optionnames:  that.options.fileNames
+            };
         }
+
+        if (that.options.supportedValues.languageCodes) {
+            tree.langLabel = that.options.strings.langLabel;
+            tree.lang = {
+                selection: "${lang}",
+                optionlist: that.options.supportedValues.languageCodes,
+                optionnames: that.options.supportedValues.languageNames
+            };
+        }
+
         return tree;
     };
 
@@ -242,47 +222,6 @@ var fluid = fluid || {};
         });
         trackList.push(newEntry);
         that.applier.requestChange(that.options.modelPath + ".tracks", trackList);
-    };
-
-    /**
-     * Adds to the model the files that have been uploaded to the WordPress media library.
-     * This data is provided by the PHP code.
-     */
-    fluid.vpPlugin.trackForm.addFilesAndLanguages = function (that) {
-        if (that.options.includeFilesAndLanguages) {
-            that.applier.requestChange(that.options.modelPath + ".fileUrls", phpVars[that.options.modelPath].fileUrls);
-            that.applier.requestChange(that.options.modelPath + ".fileNames", phpVars[that.options.modelPath].fileNames);
-
-            that.injectPrompt("fileUrls", "fileNames");
-            that.injectPrompt(that.options.supportedValues.languageCodes, that.options.supportedValues.languageNames);
-        }
-    };
-
-    /**
-     * Modify the renderer protoTree to add the necessary subtree to render the file list dropdown.
-     * This subtree is not used for the video source version of the form.
-     */
-    fluid.vpPlugin.trackForm.addFileSubtree = function (that, tree) {
-        tree.fileTitle = that.options.strings.fileTitle;
-        tree.fileLabel = that.options.strings.fileLabel;
-        tree.file = {
-            selection: "${" + that.options.modelPath + ".src}",
-            optionlist: "${" + that.options.modelPath + ".fileUrls}",
-            optionnames:  "${" + that.options.modelPath + ".fileNames}"
-        };
-    };
-
-    /**
-     * Modify the renderer protoTree to add the necessary subtree to render the language dropdown.
-     * This subtree is not used for the video source version of the form.
-     */
-    fluid.vpPlugin.trackForm.addLangSubtree = function (that, tree) {
-        tree.langLabel = that.options.strings.langLabel;
-        tree.lang = {
-            selection: "${" + that.options.modelPath + ".srclang}",
-            optionlist: that.options.supportedValues.languageCodes,
-            optionnames: that.options.supportedValues.languageNames
-        };
     };
 
     /******
