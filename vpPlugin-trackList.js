@@ -21,7 +21,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      */
     fluid.defaults("fluid.vpPlugin.trackList", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
-        preInitFunction: "fluid.vpPlugin.trackList.preInit",
         finalInitFunction: "fluid.vpPlugin.trackList.finalInit",
         mergePolicy: {
             selectors: "replace"
@@ -49,8 +48,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         resources: {
             template: {
                 forceCache: true,
-                href: vpPluginPHPvars.pluginUrl + "/trackListTemplate.html",
-                fetchClass: "template"
+                href: vpPluginPHPvars.pluginUrl + "/trackListTemplate.html"
             }
         },
         modelPath: "mediaType",
@@ -62,16 +60,18 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             }
         }
     });
-    fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackList");
 
-    fluid.vpPlugin.trackList.preInit = function (that) {
-        fluid.fetchResources({}, function (resourceSpec) {
-            that.refreshView();
-        }, {amalgamateClasses: ["template"]});        
-    };
+    // because resource fetching is asynchronous, we need to ensure that the template is already
+    // in the cache before we try to use it.
+    fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackList");
 
     fluid.vpPlugin.trackList.finalInit = function (that) {
         that.applier.modelChanged.addListener(that.options.modelPath + ".tracks", that.updateListView);
+
+        // this call to fetchResources will load the template that was cached
+        fluid.fetchResources(that.options.resources, function (resourceSpec) {
+            that.refreshView();
+        });
     };
 
     fluid.vpPlugin.trackList.updateListView = function (that, newModel, oldModel, changeRequest) {

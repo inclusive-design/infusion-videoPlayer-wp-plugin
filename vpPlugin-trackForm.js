@@ -21,7 +21,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      */
     fluid.defaults("fluid.vpPlugin.trackForm", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
-        preInitFunction: "fluid.vpPlugin.trackForm.preInit",
+        finalInitFunction: "fluid.vpPlugin.trackForm.finalInit",
         model: {
             type: "text/amarajson",
             src: null,
@@ -89,8 +89,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         resources: {
             template: {
                 forceCache: true,
-                href: vpPluginPHPvars.pluginUrl + "/trackFormTemplate.html",
-                fetchClass: "template"
+                href: vpPluginPHPvars.pluginUrl + "/trackFormTemplate.html"
             }
         },
         supportedValues: {
@@ -106,13 +105,17 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             }
         }
     });
+    
+    // because resource fetching is asynchronous, we need to ensure that the template is already
+    // in the cache before we try to use it.
     fluid.fetchResources.primeCacheFromResources("fluid.vpPlugin.trackForm");
 
-    fluid.vpPlugin.trackForm.preInit = function (that) {
-        fluid.fetchResources({}, function (resourceSpec) {
+    fluid.vpPlugin.trackForm.finalInit = function (that) {
+        // this call to fetchResources will load the template that was cached
+        fluid.fetchResources(that.options.resources, function (resourceSpec) {
             that.refreshView();
             that.locate("source").hide();
-        }, {amalgamateClasses: ["template"]});
+        });
         that.options.initialType = that.model.type;
     };
 
