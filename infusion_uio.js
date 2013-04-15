@@ -9,7 +9,7 @@ You may obtain a copy of the ECL 2.0 License and BSD License at
 https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 */
 
-/*global jQuery, fluid, phpVars*/
+/*global jQuery, fluid, vpPluginPHPvars*/
 
 // JSLint options 
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
@@ -39,11 +39,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 
     fluid.vpPlugin.initUIO = function () {
         fluid.pageEnhancer({
-            tocTemplate: phpVars.pluginUrl + phpVars.tocTemplate
+            tocTemplate: vpPluginPHPvars.pluginUrl + vpPluginPHPvars.tocTemplate
         });
 
         var opts = {
-            prefix: phpVars.pluginUrl + phpVars.prefix,
+            prefix: vpPluginPHPvars.pluginUrl + vpPluginPHPvars.prefix,
             components: {
                 relay: {
                     type: "fluid.videoPlayer.relay"
@@ -52,7 +52,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             templateLoader: {
                 options: {
                     templates: {
-                        mediaControls: phpVars.pluginUrl + phpVars.mediaTemplate
+                        mediaControls: vpPluginPHPvars.pluginUrl + vpPluginPHPvars.mediaTemplate
                     }
                 }
             },
@@ -60,13 +60,13 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
                 afterRender: fluid.staticEnvironment.UIOAnnouncer.events.UIOReady.fire
             }
         };
-        if (phpVars.showText) {
+        if (vpPluginPHPvars.showText) {
           // Custom strings for slidingPanel button are specified through the plugin admin panel
             opts.slidingPanel = {
                 options: {
                     strings: {
-                        showText: phpVars.showText,
-                        hideText: phpVars.hideText
+                        showText: vpPluginPHPvars.showText,
+                        hideText: vpPluginPHPvars.hideText
                     }
                 }
             };
@@ -82,7 +82,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
             fluid.vpPlugin.initUIO();
         } else {
             // there's no UIO markup, we need to load it, insert it, then instantiate
-            $.ajax(phpVars.pluginUrl + phpVars.fatPanelTemplate, {
+            $.ajax(vpPluginPHPvars.pluginUrl + vpPluginPHPvars.fatPanelTemplate, {
                 type: "GET",
                 success: function (data, textStatus, jqXHR) {
                     $("body").prepend(data);

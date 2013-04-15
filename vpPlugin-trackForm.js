@@ -9,12 +9,10 @@ You may obtain a copy of the ECL 2.0 License and BSD License at
 https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 */
 
-/*global jQuery, phpVars*/
+/*global fluid, jQuery, vpPluginPHPvars*/
 
 // JSLint options 
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
-
-var fluid = fluid || {};
 
 (function ($) {
     /*************************************************************************************
@@ -91,7 +89,7 @@ var fluid = fluid || {};
         resources: {
             template: {
                 forceCache: true,
-                href: phpVars.pluginUrl + "/trackFormTemplate.html",
+                href: vpPluginPHPvars.pluginUrl + "/trackFormTemplate.html",
                 fetchClass: "template"
             }
         },

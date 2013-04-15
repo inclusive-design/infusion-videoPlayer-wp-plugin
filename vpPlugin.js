@@ -9,12 +9,10 @@ You may obtain a copy of the ECL 2.0 License and BSD License at
 https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
 */
 
-/*global jQuery, phpVars*/
+/*global fluid, jQuery, vpPluginPHPvars*/
 
 // JSLint options 
 /*jslint white: true, funcinvoke: true, undef: true, newcap: true, nomen: true, regexp: true, bitwise: true, browser: true, forin: true, maxerr: 100, indent: 4 */
-
-var fluid = fluid || {};
 
 (function ($) {
 
@@ -100,8 +98,8 @@ var fluid = fluid || {};
                         types: ["text/amarajson", "text/vtt"],
                         typeLabels: ["Amara", "VTT"]
                     },
-                    fileUrls: phpVars.captions.fileUrls,
-                    fileNames: phpVars.captions.fileNames
+                    fileUrls: vpPluginPHPvars.captions.fileUrls,
+                    fileNames: vpPluginPHPvars.captions.fileNames
                 }
             },
             captionList: {
@@ -127,8 +125,8 @@ var fluid = fluid || {};
                         fileTitle: "Add JSON-CC Transcript",
                         fileLabel: "Choose Transcript:"
                     },
-                    fileUrls: phpVars.transcripts.fileUrls,
-                    fileNames: phpVars.transcripts.fileNames
+                    fileUrls: vpPluginPHPvars.transcripts.fileUrls,
+                    fileNames: vpPluginPHPvars.transcripts.fileNames
                 }
             },
             transcriptList: {
@@ -198,7 +196,7 @@ var fluid = fluid || {};
         shortCodeString += that.convertTracksToString(that.model.captions.tracks, "captions");
         shortCodeString += that.convertTracksToString(that.model.transcripts.tracks, "transcripts");
 
-        shortCodeString += " uiosetting='" + phpVars.addUIOsetting + "']\n";
+        shortCodeString += " uiosetting='" + vpPluginPHPvars.addUIOsetting + "']\n";
         parent.send_to_editor(shortCodeString);
     };
 })(jQuery);

@@ -66,3 +66,7 @@ select.vpp-trackForm-invalid {
 .vpp-mainForm label {
     vertical-align: top;
 }
+
+.vpp-adminOptions {
+    max-width: 65em;
+}

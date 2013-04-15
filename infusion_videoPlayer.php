@@ -166,11 +166,11 @@ class infusion_video_player {
 			array_splice($php_vars['transcripts']['fileNames'], 0, 0, "Select file...");
 		}
 
-		wp_localize_script( 'vpPlugin_mainScript', 'phpVars', $php_vars );
-		wp_localize_script( 'vpPlugin_trackList', 'phpVars', $php_vars );
-		wp_localize_script( 'vpPlugin_trackForm', 'phpVars', $php_vars );
+		wp_localize_script( 'vpPlugin_mainScript', 'vpPluginPHPvars', $php_vars );
+		wp_localize_script( 'vpPlugin_trackList', 'vpPluginPHPvars', $php_vars );
+		wp_localize_script( 'vpPlugin_trackForm', 'vpPluginPHPvars', $php_vars );
 		if ($vpPlugin_options['add_uio'] == 'addUIO') {
-			wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
+			wp_localize_script( 'infusion_uio_script', 'vpPluginPHPvars', $php_vars );
 		}
 	}
 
@@ -208,7 +208,7 @@ class infusion_video_player {
 		$php_vars['prefix'] = $vpPlugin_options['prefix'];
 		$php_vars['mediaTemplate'] = $vpPlugin_options['media_template'];
 		$php_vars['fatPanelTemplate'] = $vpPlugin_options['fatpanel_template'];
-		wp_localize_script( 'infusion_uio_script', 'phpVars', $php_vars );
+		wp_localize_script( 'infusion_uio_script', 'vpPluginPHPvars', $php_vars );
 	}
 
 	/**

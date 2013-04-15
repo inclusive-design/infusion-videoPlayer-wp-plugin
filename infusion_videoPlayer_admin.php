@@ -30,9 +30,9 @@ class infusion_video_player_admin {
 		/* Echo text to explain the main section */
 		?>
 		<p>The Infusion Video Player is designed to work with another Infusion component: User Interface Options.
-			 This component allows visitors to your site to customize the presentation of the site, for example by enlarging the font, or using a high-contrast colour scheme.</p>
-		<p>If you're using the <a href="https://github.com/inclusive-design/wordpress-fss-theme/">FSS Wordpress Theme</a> as your base theme, you already have User Interface Options on your site, and the Video Player can work with it.</p>
-		<p>If you're not using the FSS Wordpress Theme, this plugin can add User Interface Options to your site for you.</p>
+			 This component allows visitors to your site to customize the presentation of the site, for example by enlarging the font, or using a high-contrast colour scheme.
+		     This plugin can add User Interface Options to your site for you.</p>
+		<p>If you're using the <a href="https://github.com/inclusive-design/wordpress-fss-theme/">FSS Wordpress Theme</a> as your base theme, the Video Player plugin will work with the files that are already in that theme.</p>
 		<?php
 	}
 	
@@ -45,17 +45,17 @@ class infusion_video_player_admin {
 				<span>Please add UI Options to my site, and configure the Video Player to work with it.</span>
 			</label>
 		</div>
-		<div>
-		<label title="I'm using the FSS base theme, please configure the Video Player to work with its UI Options.">
-			<input type="radio" value="useUIO" name="infusion_vp_options[add_uio]" <?php if ($options['add_uio'] == 'useUIO') { echo "checked='checked'"; } ?>>
-			<span>I'm using the FSS base theme, please configure the Video Player to work with its UI Options.</span>
-		</label> 
+       <div>
+           <label title="Use UI Options files from FSS Theme">
+                   <input type="radio" value="useUIO" name="infusion_vp_options[add_uio]" <?php if ($options['add_uio'] == 'useUIO') { echo "checked='checked'"; } ?>>
+                   <span>I'm using the FSS base theme, please configure the Video Player to work with its UI Options.</span>
+           </label> 
 		</div>
 		<div>
-		<label title="Do not add UI Options">
-			<input type="radio" value="noUIO" name="infusion_vp_options[add_uio]" <?php if ($options['add_uio'] == 'noUIO') { echo "checked='checked'"; } ?>>
-			<span>Do not add UI Options to my site</span>
-		</label> 
+			<label title="Do not add UI Options">
+				<input type="radio" value="noUIO" name="infusion_vp_options[add_uio]" <?php if ($options['add_uio'] == 'noUIO') { echo "checked='checked'"; } ?>>
+				<span>Do not add UI Options to my site</span>
+			</label>
 		</div>
 		<?php
 	}
@@ -98,7 +98,7 @@ class infusion_video_player_admin {
 		<?php screen_icon(); ?>
 		<h2>Infusion Video Player Options</h2>		
 		
-			<form action="options.php" method="post">
+			<form action="options.php" method="post" class="vpp-adminOptions">
 				<?php
 				settings_fields( 'infusion_vp_options' );
 				do_settings_sections( 'infusion-vp-options-page' );
