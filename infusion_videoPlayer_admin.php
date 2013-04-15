@@ -66,12 +66,12 @@ class infusion_video_player_admin {
 		<div>
 			<label>Show:</label>
 			<input name="infusion_vp_options[show_text]" type="text" value="<?php if ($options['show_text']) { echo $options['show_text']; } ?>" />
-			<p class="help">This text will be used to label the UI Options button while the panel is closed.</p>
+			<p class="help">This text will be used to label the UI Options button while the panel is closed.<br/>(default: "+ Show Display Preferences")</p>
 		</div>
 		<div>
 			<label>Hide:</label>
 			<input name="infusion_vp_options[hide_text]" type="text" value="<?php if ($options['hide_text']) { echo $options['hide_text']; } ?>"  />
-			<p class="help">This text will be used to label the UI Options button while the panel is open.</p>
+			<p class="help">This text will be used to label the UI Options button while the panel is open.<br/>(default: "- Hide")</p>
 		</div>
 		<?php
 
