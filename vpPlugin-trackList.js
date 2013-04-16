@@ -22,9 +22,6 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     fluid.defaults("fluid.vpPlugin.trackList", {
         gradeNames: ["fluid.rendererComponent", "autoInit"],
         finalInitFunction: "fluid.vpPlugin.trackList.finalInit",
-        mergePolicy: {
-            selectors: "replace"
-        },
         model: {
             mediaType: {
                 tracks: []
@@ -107,13 +104,11 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     };
 
     fluid.vpPlugin.trackList.addTrack = function (that, trackData) {
-        var trackList = fluid.copy(that.model[that.options.modelPath].tracks);
         var newTrack = {};
         fluid.each(that.options.fields, function (field) {
             newTrack[field] = trackData[field];
         });
-        trackList.push(newTrack);
-        that.applier.requestChange(that.options.modelPath + ".tracks", trackList);
+        that.applier.requestChange(that.options.modelPath + ".tracks." + that.model[that.options.modelPath].tracks.length, newTrack);
     };
 
     /**********************************************************

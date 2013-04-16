@@ -35,12 +35,12 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         listeners: {
             onAddTrack: {
                 listener: "fluid.vpPlugin.trackForm.validateForm",
-                args: "{trackForm}",
+                args: "{that}",
                 priority: "first"
             },
             afterTrackAdded: {
                 listener: "fluid.vpPlugin.trackForm.resetForm",
-                args: "{trackForm}"
+                args: "{that}"
             },
             invalidField: "fluid.vpPlugin.trackForm.highlightField",
             afterRender: "fluid.vpPlugin.trackForm.bindEventHandlers",
@@ -101,7 +101,34 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         invokers: {
             resetForm: {
                 funcName: "fluid.vpPlugin.trackForm.resetForm",
-                args: "{trackForm}"
+                args: "{that}"
+            },
+
+            // TODO: When Infusion is upgraded, these simple functions should be made 'members'
+            //       instead of 'invokers'
+            addTitleToRendererTree: {
+                funcName: "fluid.vpPlugin.trackForm.addTitleToRendererTree",
+                args: ["{that}", "{arguments}.0"]
+            },
+            addFormatDropdownToRendererTree: {
+                funcName: "fluid.vpPlugin.trackForm.addFormatDropdownToRendererTree",
+                args: ["{that}", "{arguments}.0"]
+            },
+            addFormatRadiosToRendererTree: {
+                funcName: "fluid.vpPlugin.trackForm.addFormatRadiosToRendererTree",
+                args: ["{that}", "{arguments}.0"]
+            },
+            addUrlSrcToRendererTree: {
+                funcName: "fluid.vpPlugin.trackForm.addUrlSrcToRendererTree",
+                args: ["{that}", "{arguments}.0"]
+            },
+            addFileSrcToRendererTree: {
+                funcName: "fluid.vpPlugin.trackForm.addFileSrcToRendererTree",
+                args: ["{that}", "{arguments}.0"]
+            },
+            addLangListToRendererTree: {
+                funcName: "fluid.vpPlugin.trackForm.addLangListToRendererTree",
+                args: ["{that}", "{arguments}.0"]
             }
         }
     });
@@ -152,6 +179,9 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         that.locate("source").hide();
     };
 
+    /**
+     * Clear all data model fields and re-render the form
+     */
     fluid.vpPlugin.trackForm.resetForm = function (that) {
         that.applier.requestChange("type", that.options.initialType);
         that.applier.requestChange("src", null);
@@ -161,58 +191,75 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
     };
 
     fluid.vpPlugin.trackForm.produceTree = function (that) {
-        var tree = {
-            title: that.options.strings.title
-        };
-        
-        if (that.options.fileUrls) {
-            tree.expander = [{
-                type: "fluid.renderer.selection.inputs",
-                rowID: "typeRow",
-                labelID: "typeLabel",
-                inputID: "typeInput",
-                selectID: fluid.allocateGuid(),
-                tree: {
-                    selection: "${type}",
-                    optionlist: that.options.supportedValues.types,
-                    optionnames: that.options.supportedValues.typeLabels
-                }
-            }];
+        var tree = {};
+        that.addTitleToRendererTree(tree);
+        that.addFormatRadiosToRendererTree(tree);
+
+        // this test is to respond to the user's current format choice; different each run-time
+        if (that.model.type === "text/amarajson") {
+            that.addUrlSrcToRendererTree(tree);
         } else {
-            tree.typeSelect = {
-                selection: "${type}",
-                optionlist: that.options.supportedValues.types,
-                optionnames:  that.options.supportedValues.typeLabels
-            };
+            that.addFileSrcToRendererTree(tree);
         }
 
-        if (that.model.type === "text/amarajson" || !that.options.fileUrls) {
-            tree.urlTitle = that.options.strings.urlTitle;
-            tree.urlLabel = that.options.strings.urlLabel;
-            tree.url = "${src}";
-            tree.urlHelp = that.options.strings.urlHelp;
-        } else {
-            tree.fileTitle = that.options.strings.fileTitle;
-            tree.fileLabel = that.options.strings.fileLabel;
-
-            tree.file = {
-                selection: "${src}",
-                optionlist: that.options.fileUrls,
-                optionnames:  that.options.fileNames
-            };
-            tree.fileHelp = that.options.strings.fileHelp;
-        }
-
-        if (that.options.supportedValues.languageCodes) {
-            tree.langLabel = that.options.strings.langLabel;
-            tree.lang = {
-                selection: "${srclang}",
-                optionlist: that.options.supportedValues.languageCodes,
-                optionnames: that.options.supportedValues.languageNames
-            };
-        }
+        that.addLangListToRendererTree(tree);
 
         return tree;
+    };
+
+    fluid.vpPlugin.trackForm.addTitleToRendererTree = function (that, tree) {
+        tree.title = that.options.strings.title;
+    };
+
+    fluid.vpPlugin.trackForm.addFormatDropdownToRendererTree = function (that, tree) {
+        tree.typeSelect = {
+            selection: "${type}",
+            optionlist: that.options.supportedValues.types,
+            optionnames:  that.options.supportedValues.typeLabels
+        };
+    };
+
+    fluid.vpPlugin.trackForm.addFormatRadiosToRendererTree = function (that, tree) {
+        tree.expander = [{
+            type: "fluid.renderer.selection.inputs",
+            rowID: "typeRow",
+            labelID: "typeLabel",
+            inputID: "typeInput",
+            selectID: fluid.allocateGuid(),
+            tree: {
+                selection: "${type}",
+                optionlist: that.options.supportedValues.types,
+                optionnames: that.options.supportedValues.typeLabels
+            }
+        }];
+    };
+
+    fluid.vpPlugin.trackForm.addUrlSrcToRendererTree = function (that, tree) {
+        tree.urlTitle = that.options.strings.urlTitle;
+        tree.urlLabel = that.options.strings.urlLabel;
+        tree.url = "${src}";
+        tree.urlHelp = that.options.strings.urlHelp;
+    };
+
+    fluid.vpPlugin.trackForm.addFileSrcToRendererTree = function (that, tree) {
+        tree.fileTitle = that.options.strings.fileTitle;
+        tree.fileLabel = that.options.strings.fileLabel;
+
+        tree.file = {
+            selection: "${src}",
+            optionlist: that.options.fileUrls,
+            optionnames:  that.options.fileNames
+        };
+        tree.fileHelp = that.options.strings.fileHelp;
+    };
+
+    fluid.vpPlugin.trackForm.addLangListToRendererTree = function (that, tree) {
+        tree.langLabel = that.options.strings.langLabel;
+        tree.lang = {
+            selection: "${srclang}",
+            optionlist: that.options.supportedValues.languageCodes,
+            optionnames: that.options.supportedValues.languageNames
+        };
     };
 
     /******
@@ -241,6 +288,23 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
      */
     fluid.vpPlugin.trackForm.highlightField = function (field, className, flag) {
         field.toggleClass(className, flag);
+    };
+
+    /**
+     * The 'videoTrackForm' is a specialized version of a 'trackForm' that renders
+     * a slightly different version of the form.
+     */
+    fluid.defaults("fluid.vpPlugin.videoTrackForm", {
+        gradeNames: ["fluid.vpPlugin.trackForm", "autoInit"],
+        produceTree: "fluid.vpPlugin.videoTrackForm.produceTree"
+    });
+
+    fluid.vpPlugin.videoTrackForm.produceTree = function (that) {
+        var tree = {};
+        that.addTitleToRendererTree(tree);
+        that.addFormatDropdownToRendererTree(tree);
+        that.addUrlSrcToRendererTree(tree);
+        return tree;
     };
 
 })(jQuery);

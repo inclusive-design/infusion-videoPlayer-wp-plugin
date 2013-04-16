@@ -53,7 +53,7 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         },
         components: {
             videoForm: {
-                type: "fluid.vpPlugin.trackForm",
+                type: "fluid.vpPlugin.videoTrackForm",
                 container: ".vppc-videoForm",
                 options: {
                     model: {
@@ -199,4 +199,5 @@ https://github.com/fluid-project/infusion/raw/master/Infusion-LICENSE.txt
         shortCodeString += " uiosetting='" + vpPluginPHPvars.addUIOsetting + "']\n";
         parent.send_to_editor(shortCodeString);
     };
+
 })(jQuery);
