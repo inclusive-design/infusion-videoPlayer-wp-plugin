@@ -10,6 +10,10 @@ Author URI: http://fluidproject.org/
 
 include_once dirname( __FILE__ ) .'/infusion_videoPlayer_admin.php';
 
+add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_infusion_to_header'));
+add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_infusion_to_header'));
+add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_plugin_files_to_header'));
+
 add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
 
 $vpPlugin_options = get_option('infusion_vp_options');
@@ -17,12 +21,11 @@ if ($vpPlugin_options['add_uio'] == 'useUIO') {
 	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_plugin_files_to_header'));
 }
 if ($vpPlugin_options['add_uio'] == 'addUIO') {
-	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_plugin_files_to_header'));
 	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_files_to_header'));
+	add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_uio_plugin_files_to_header'));
 }
-
-add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_vp_files_to_header'));
-add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_plugin_js_to_header'));
+add_action('wp_enqueue_scripts', array('infusion_video_player', 'add_noConflict_to_header'));
+add_action('admin_enqueue_scripts', array('infusion_video_player', 'add_noConflict_to_header'));
 
 add_filter('media_upload_tabs', array('infusion_video_player', 'add_embed_tab'));
 add_action('media_upload_vp_embed_video', array('infusion_video_player', 'embed_media_handler'));
@@ -93,27 +96,32 @@ class infusion_video_player {
 	}
 
 	/**
+	 * Add to the document header all basic Infusion files, neede by both the plugin interface
+	 * and the Video Player.
+	 */
+	 function add_infusion_to_header() {
+		// FSS-specific CSS files
+		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-layout.css', __FILE__), array(), null);
+		wp_enqueue_style( 'fss-text', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-text.css', __FILE__), array(), null);
+
+		// Infusion
+		wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/lib/infusion/MyInfusion.js', __FILE__), array(), null);
+	 }
+
+	/**
 	 * Add to the document header all files needed by the VideoPlayer
 	 */
 	function add_vp_files_to_header() {
 		global $wp_styles;
-	
-		// FSS-specific CSS files
-		wp_enqueue_style( 'fss-layout', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-layout.css', __FILE__), array(), null);
-		wp_enqueue_style( 'fss-text', plugins_url('/lib/videoPlayer/lib/infusion/framework/fss/css/fss-text.css', __FILE__), array(), null);
 
 		// VideoPlayer-specific CSS files
 		wp_enqueue_style( 'jqueryUiCustom', plugins_url('/lib/videoPlayer/lib/jquery-ui/css/ui-lightness/jquery-ui-1.8.14.custom.css', __FILE__), array(), null);
 		wp_enqueue_style( 'VideoPlayer', plugins_url('/lib/videoPlayer/css/VideoPlayer.css', __FILE__), array(), null);
 		wp_enqueue_style( 'captions', plugins_url('/lib/videoPlayer/lib/captionator/css/captions.css', __FILE__), array(), null);
-		wp_enqueue_style( 'localCss', plugins_url('/vpPlugin.css', __FILE__), array(), null);
 
 		wp_register_style('ie-only', plugins_url('/lib/videoPlayer/css/ltie9.css',__FILE__));
 		$wp_styles->add_data('ie-only', 'conditional', 'lt IE 9');
 		wp_enqueue_style('ie-only');
-
-		// Infusion
-		wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/lib/infusion/MyInfusion.js', __FILE__), array(), null);
 
 		// VideoPlayer-specific JS files
 		wp_enqueue_script('jqueryUiButton', plugins_url('/lib/videoPlayer/lib/jquery-ui/js/jquery.ui.button.js', __FILE__), array(), null);
@@ -136,12 +144,13 @@ class infusion_video_player {
 	/**
 	 * Add to the document header files needed by the plugin
 	 */
-	function add_plugin_js_to_header() { //loads plugin-related javascripts
+	function add_plugin_files_to_header() { //loads plugin-related javascripts
 		global $vpPlugin_options;
 	
 		wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
 		wp_enqueue_script( 'vpPlugin_trackList', plugins_url('/vpPlugin-trackList.js', __FILE__) );
 		wp_enqueue_script( 'vpPlugin_mainScript', plugins_url('/vpPlugin.js', __FILE__) );
+		wp_enqueue_style( 'localCss', plugins_url('/vpPlugin.css', __FILE__), array(), null);
 
 		// make some information available to the Javascript files
 		$php_vars = array('pluginUrl' => __(plugins_url('', __FILE__)));
@@ -209,6 +218,10 @@ class infusion_video_player {
 		$php_vars['mediaTemplate'] = $vpPlugin_options['media_template'];
 		$php_vars['fatPanelTemplate'] = $vpPlugin_options['fatpanel_template'];
 		wp_localize_script( 'infusion_uio_script', 'vpPluginPHPvars', $php_vars );
+	}
+
+	function add_noConflict_to_header() {
+		wp_enqueue_script( 'no_conflict_script', plugins_url('/vpPlugin-noConflict.js', __FILE__) );
 	}
 
 	/**
@@ -296,10 +309,11 @@ class infusion_video_player {
 			$str .= $name . ': [';
 			for ($i = 0; $i < $count; $i++) {
 				if ($srcs[$i]) {
-					$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i];
-					if ($langs) {
-						$str .= '", srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"}';
+					$str .= '{src: "' . $srcs[$i] . '", type: "' . $types[$i] . '"';
+					if ($name != 'sources') {
+						$str .= ', srclang: "' . $langs[$i] . '", label: "' . $labels[$i] . '"';
 					}
+					$str .= '}';
 				}
 				$str .= ",";
 			}
