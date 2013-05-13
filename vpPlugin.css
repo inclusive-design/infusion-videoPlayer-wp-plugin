@@ -1,0 +1,72 @@
+.vpp-mainForm {
+    padding: 2em;
+}
+.vpp-videoTitle {
+    width: 30em;
+}
+.vpp-trackForm-header {
+    padding-top: 2em;
+    width: 50%;
+}
+.vpp-trackForm-add {
+    float: right;
+}
+.vpp-trackForm-title {
+    font-weight: bold;
+}
+.vpp-trackForm-type {
+    padding: 0.5em;
+}
+.vpp-trackForm-typeRow {
+    display: inline-block;
+}
+.vpp-trackList {
+    border: 1px solid #DFDFDF;
+    border-radius: 3px;
+    min-height: 8em;
+    margin: 1em 0;
+    width: 50%;
+}
+.vpp-trackForm-source {
+    border: 1px solid #DFDFDF;
+    border-radius: 3px;
+    float: left;
+    margin-left: 55%;
+    width: 45%;
+}
+.vpp-trackForm-source.vpp-trackForm-urlSrc .vpp-trackForm-fileSrc,
+.vpp-trackForm-source.vpp-trackForm-fileSrc .vpp-trackForm-urlSrc {
+    display: none;
+}
+input[type="text"].vpp-trackForm-invalid,
+select.vpp-trackForm-invalid {
+    border: 2px solid red;
+}
+.vpp-trackList-trackSrc {
+    width: 100%;
+}
+.vpp-trackList-trackLang {
+    width: 5em;
+}
+.vpp-trackList-trackType {
+    width: 5em;
+}
+.vpp-trackList-trackDelete {
+    width: 1em;
+}
+.vpp-trackForm-inputHelp {
+    display: inline-block;
+}
+.vpp-mainForm .help {
+    margin-top: 0;
+}
+.vpp-mainForm .vpp-trackList + .help {
+    margin-top: -1em;
+}
+.vpp-mainForm label {
+    vertical-align: top;
+}
+
+.vpp-adminOptions {
+    max-width: 65em;
+}
