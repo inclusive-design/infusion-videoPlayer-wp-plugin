@@ -124,14 +124,14 @@ class infusion_video_player {
 		wp_enqueue_style('ie-only');
 
 		// VideoPlayer-specific JS files
-		wp_enqueue_script('jqueryUiButton', plugins_url('/lib/videoPlayer/lib/jquery-ui/js/jquery.ui.button.js', __FILE__), array(), null);
-		wp_enqueue_script('captionator', plugins_url('/lib/videoPlayer/lib/captionator/js/captionator.js', __FILE__), array(), null);
-		wp_enqueue_script('mediaelement', plugins_url('/lib/videoPlayer/lib/mediaelement/js/mediaelement.js', __FILE__), array(), null);
+		wp_enqueue_script('vp_jqueryUiButton', plugins_url('/lib/videoPlayer/lib/jquery-ui/js/jquery.ui.button.js', __FILE__), array(), null);
+		wp_enqueue_script('vp_captionator', plugins_url('/lib/videoPlayer/lib/captionator/js/captionator.js', __FILE__), array(), null);
+		wp_enqueue_script('vp_mediaelement', plugins_url('/lib/videoPlayer/lib/mediaelement/js/mediaelement.js', __FILE__), array(), null);
 
 		wp_enqueue_script('VideoPlayer_framework', plugins_url('/lib/videoPlayer/js/VideoPlayer_framework.js', __FILE__), array(), null);
 		wp_enqueue_script('VideoPlayer_showHhide', plugins_url('/lib/videoPlayer/js/VideoPlayer_showHide.js', __FILE__), array(), null);
-		wp_enqueue_script('ToggleButton', plugins_url('/lib/videoPlayer/js/ToggleButton.js', __FILE__), array(), null);
-		wp_enqueue_script('MenuButton', plugins_url('/lib/videoPlayer/js/MenuButton.js', __FILE__), array(), null);
+		wp_enqueue_script('vp_ToggleButton', plugins_url('/lib/videoPlayer/js/ToggleButton.js', __FILE__), array(), null);
+		wp_enqueue_script('vp_MenuButton', plugins_url('/lib/videoPlayer/js/MenuButton.js', __FILE__), array(), null);
 		wp_enqueue_script('VideoPlayer_html5Captionator', plugins_url('/lib/videoPlayer/js/VideoPlayer_html5Captionator.js', __FILE__), array(), null);
 		wp_enqueue_script('VideoPlayer_media', plugins_url('/lib/videoPlayer/js/VideoPlayer_media.js', __FILE__), array(), null);
 		wp_enqueue_script('VideoPlayer_transcript', plugins_url('/lib/videoPlayer/js/VideoPlayer_transcript.js', __FILE__), array(), null);
