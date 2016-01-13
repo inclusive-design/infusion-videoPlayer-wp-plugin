@@ -131,7 +131,7 @@ class infusion_video_player {
 		global $vpPlugin_options;
 
         wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/lib/infusion/MyInfusion.js', __FILE__), array(), null);
-   		wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
+        wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
 		wp_enqueue_script( 'vpPlugin_trackList', plugins_url('/vpPlugin-trackList.js', __FILE__) );
 		wp_enqueue_script( 'vpPlugin_mainScript', plugins_url('/vpPlugin.js', __FILE__) );
 		wp_enqueue_style( 'localCss', plugins_url('/vpPlugin.css', __FILE__), array(), null);
