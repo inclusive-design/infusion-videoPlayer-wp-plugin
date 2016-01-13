@@ -121,16 +121,17 @@ class infusion_video_player {
 		wp_enqueue_style('ie-only');
 
 		// VideoPlayer-specific JS files (Infusion included in -all file)
-		wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/videoPlayer-all-min.js', __FILE__), array(), null);		
+		wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/videoPlayer-all-min.js', __FILE__), array(), null);
 	}
- 
+
 	/**
 	 * Add to the document header files needed by the plugin
 	 */
 	function add_plugin_files_to_header() { //loads plugin-related javascripts
 		global $vpPlugin_options;
-	
-		wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
+
+        wp_enqueue_script('infusion', plugins_url('/lib/videoPlayer/lib/infusion/MyInfusion.js', __FILE__), array(), null);
+   		wp_enqueue_script( 'vpPlugin_trackForm', plugins_url('/vpPlugin-trackForm.js', __FILE__) );
 		wp_enqueue_script( 'vpPlugin_trackList', plugins_url('/vpPlugin-trackList.js', __FILE__) );
 		wp_enqueue_script( 'vpPlugin_mainScript', plugins_url('/vpPlugin.js', __FILE__) );
 		wp_enqueue_style( 'localCss', plugins_url('/vpPlugin.css', __FILE__), array(), null);
@@ -187,7 +188,7 @@ class infusion_video_player {
 	 */
 	function add_uio_plugin_files_to_header() {
 		global $vpPlugin_options;
-		
+
 		// Plugin+UIO-specific JS files
 		wp_enqueue_script( 'infusion_uio_script', plugins_url('/infusion_uio.js', __FILE__) );
 
@@ -213,7 +214,7 @@ class infusion_video_player {
 	 */
 	function process_shortcode( $atts ) {
 		global $vpPlugin_options;
-	
+
 		extract( shortcode_atts( array(
 			// these are the defaults, if nothing is provded in the shorcode
 			'id' => '',
@@ -312,7 +313,7 @@ class infusion_video_player {
 	 */
 	function get_caption_transcript_files() {
 		// get files of types supported by captions
-		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
+		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null );
 		$attachments = get_posts( $args );
 		if ($attachments) {
 			$index = 0;
@@ -326,7 +327,7 @@ class infusion_video_player {
 		}
 
 		// get files of types supported by transcript
-		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null ); 
+		$args = array( 'post_type' => 'attachment', 'numberposts' => -1, 'post_status' => 'any', 'post_parent' => null );
 		$attachments = get_posts( $args );
 		if ($attachments) {
 			$index = 0;
