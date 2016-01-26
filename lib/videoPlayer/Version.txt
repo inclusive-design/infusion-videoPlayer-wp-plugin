@@ -1,0 +1,10 @@
+This version of the Video Player was created using a custom build from the master branch:
+
+https://github.com/fluid-project/videoPlayer/
+
+commit 7105739aa0ff3e6ddbfebd25b18783d7e08c0f10
+
+using the command line:
+
+    grunt build-min --packageName="videoPlayer-all"
+
